@@ -1866,8 +1866,13 @@
             document.getElementById('host-controls').style.display = isHost ? 'block' : 'none';
             document.getElementById('guest-waiting').style.display = isHost ? 'none' : 'block';
             players = data.players; duration = data.duration;
-            const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; isRunning = t.isRunning;
+            const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; 
+            
+            // [수정] 온라인 모드 상태 동기화 개선
+            const wasRunning = isRunning;
+            isRunning = t.isRunning;
             document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
+            
             if(data.state === 'playing') {
                 if(currentMode !== 'timer-screen') { 
                     showScreen('timer-screen'); 
@@ -1883,7 +1888,15 @@
                 }
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
-                if(!isRunning) timeLeft = t.pausedTimeLeft;
+                
+                // [수정] 기기 간 시간차(Clock Drift) 방지 로직
+                // 타이머가 시작될 때만 endTime을 기준으로 timeLeft를 한 번 계산
+                if (isRunning && !wasRunning) {
+                    timeLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000));
+                    startLocalInterval();
+                } else if (!isRunning) {
+                    timeLeft = t.pausedTimeLeft;
+                }
             }
             refreshUI();
         });
@@ -1920,19 +1933,39 @@
             else { const newEnd = Date.now() + (t.pausedTimeLeft * 1000); await updateDoc(ref, { "timer.isRunning": true, "timer.endTime": newEnd, "autoSwitch": document.getElementById('auto-switch-checkbox').checked }); }
         }
     };
+    
+    // [수정] 타이머 틱(Tick) 로직 통합
     function startLocalInterval() {
         if(timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if(!isRunning) { clearInterval(timerInterval); return; }
-            if(timeLeft > 0) { timeLeft--; refreshUI(); }
-            else { 
+            if(timeLeft > 0) { 
+                timeLeft--; 
+                refreshUI(); 
+            } else { 
                 isRunning = false; 
                 playAlert(); 
-                refreshUI(); 
-                // playAlert 내부에서 오프라인용 autoSwitch 처리됨
+                refreshUI();
+                
+                // [추가] 온라인 모드 자동 턴 넘기기 로직 (방장 전용)
+                if (roomCode !== null && roomData.hostId === currentUser.uid && roomData.autoSwitch) {
+                    setTimeout(async () => {
+                        const nextIdx = (roomData.timer.driverIndex + 1) % roomData.players.length;
+                        const nextTurnCount = roomData.timer.turnCount + 1;
+                        const newEnd = Date.now() + (roomData.duration * 1000);
+                        await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
+                            "timer.driverIndex": nextIdx,
+                            "timer.turnCount": nextTurnCount,
+                            "timer.endTime": newEnd,
+                            "timer.isRunning": true,
+                            "timer.pausedTimeLeft": roomData.duration
+                        });
+                    }, 1500);
+                }
             }
         }, 1000);
     }
+    
     document.getElementById('switch-btn').onclick = async () => {
         if(isRunning) { showToast("타이머가 일시정지 상태일 때만 턴을 넘길 수 있습니다. ⏸️", true); return; }
         const elapsed = duration - timeLeft; const isValidTurn = elapsed >= 3;
@@ -1964,36 +1997,6 @@
         if (e.code === 'Space') { e.preventDefault(); document.getElementById('toggle-btn').click(); } 
         else if (e.code === 'Enter') { e.preventDefault(); document.getElementById('switch-btn').click(); }
     });
-
-    setInterval(() => {
-        if(isRunning && roomCode !== null && currentMode === 'timer-screen') {
-            getDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode)).then(snap => {
-                const data = snap.data(); if(!data || !data.timer.isRunning) return;
-                const end = data.timer.endTime; const remain = Math.max(0, Math.ceil((end - Date.now()) / 1000));
-                timeLeft = remain; refreshUI();
-                
-                // 온라인 모드 자동 턴 넘기기 로직 (방장 전용)
-                if(remain <= 0 && !isTimeUpAlerted) { 
-                    isTimeUpAlerted = true; 
-                    playAlert(); 
-                    if(data.hostId === currentUser.uid && data.autoSwitch) {
-                        setTimeout(async () => {
-                            const nextIdx = (data.timer.driverIndex + 1) % data.players.length;
-                            const nextTurnCount = data.timer.turnCount + 1;
-                            const newEnd = Date.now() + (data.duration * 1000);
-                            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
-                                "timer.driverIndex": nextIdx,
-                                "timer.turnCount": nextTurnCount,
-                                "timer.endTime": newEnd,
-                                "timer.isRunning": true,
-                                "timer.pausedTimeLeft": data.duration
-                            });
-                        }, 1500);
-                    }
-                } else if(remain > 0) { isTimeUpAlerted = false; }
-            });
-        }
-    }, 1000);
 
     document.getElementById('btn-end-timer').onclick = async () => {
         if (isRunning) { showToast("일시정지 상태에서만 세션을 종료할 수 있습니다. ⏸️", true); return; }
