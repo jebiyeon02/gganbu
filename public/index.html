@@ -1953,20 +1953,34 @@
                 playAlert(); 
                 refreshUI();
                 
-                // [추가] 온라인 모드 자동 턴 넘기기 로직 (방장 전용)
-                if (roomCode !== null && roomData.hostId === currentUser.uid && roomData.autoSwitch) {
-                    setTimeout(async () => {
-                        const nextIdx = (roomData.timer.driverIndex + 1) % roomData.players.length;
-                        const nextTurnCount = roomData.timer.turnCount + 1;
-                        const newEnd = Date.now() + (roomData.duration * 1000);
-                        await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
-                            "timer.driverIndex": nextIdx,
-                            "timer.turnCount": nextTurnCount,
-                            "timer.endTime": newEnd,
-                            "timer.isRunning": true,
-                            "timer.pausedTimeLeft": roomData.duration
-                        });
-                    }, 1500);
+                // [수정] 온라인 모드 자동 턴 넘기기 로직 (권한 체크 및 중복 실행 방지 보강)
+                if (roomCode !== null && roomData.autoSwitch) {
+                    const isHost = roomData.hostId === currentUser.uid;
+                    const isDriver = players[driverIndex]?.uid === currentUser.uid;
+                    
+                    // 권한 확인: '방장만 제어'면 방장만, 아니면 현재 드라이버(가장 활성 상태인 참여자)가 전담 수행
+                    const canTrigger = roomData.isHostOnlyControl ? isHost : isDriver;
+                    
+                    if(canTrigger) {
+                        setTimeout(async () => {
+                            // 중복 스킵 방지를 위해 최신 DB 상태 다시 확인
+                            const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
+                            const snap = await getDoc(ref);
+                            const latest = snap.data();
+                            if(!latest || !latest.timer || latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - Date.now()) / 1000) > 2) return;
+
+                            const nextIdx = (latest.timer.driverIndex + 1) % latest.players.length;
+                            const nextTurnCount = latest.timer.turnCount + 1;
+                            const newEnd = Date.now() + (latest.duration * 1000);
+                            await updateDoc(ref, {
+                                "timer.driverIndex": nextIdx,
+                                "timer.turnCount": nextTurnCount,
+                                "timer.endTime": newEnd,
+                                "timer.isRunning": true,
+                                "timer.pausedTimeLeft": latest.duration
+                            });
+                        }, 1200);
+                    }
                 }
             }
         }, 1000);
@@ -2004,7 +2018,7 @@
         else if (e.code === 'Enter') { e.preventDefault(); document.getElementById('switch-btn').click(); }
     });
 
-    // [수정] 세션 종료 로직 통합 (모달 확인 후 실행 및 버그 수정)
+    // [수정] 세션 종료 로직 통합 (온라인/오프라인 구분 필드 추가)
     const finishSession = async () => {
         if (document.getElementById('report-modal-overlay').classList.contains('active')) return;
         
@@ -2023,7 +2037,7 @@
         
         const historyTitle = roomCode ? roomData.roomTitle : "오프라인 세션";
         
-        // [수정] 참여자 모두의 히스토리에 저장되도록 보장
+        // [수정] 온라인/오프라인 여부(isOnline)를 포함하여 히스토리에 저장
         if(isLoggedUser) {
             try {
                 await addDoc(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'), { 
@@ -2031,6 +2045,7 @@
                     players: players.map(p => p.name || p), 
                     totalMin, 
                     turnCount, 
+                    isOnline: roomCode !== null, // [추가] 모드 식별 필드
                     createdAt: Timestamp.now() 
                 });
             } catch(e) { console.error("History save error:", e); }
@@ -2073,11 +2088,18 @@
         const snap = await getDocs(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'));
         const list = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt.seconds - a.createdAt.seconds);
         
-        // [추가] 히스토리 리스트 렌더링 시 방 제목 표시
-        document.getElementById('history-list').innerHTML = list.map(item => `
-            <div class="history-item">
+        // [수정] 히스토리 리스트에 온라인/오프라인 배지 표시 로직 추가
+        document.getElementById('history-list').innerHTML = list.map(item => {
+            const modeTag = item.isOnline ? 
+                '<span style="font-size: 0.65rem; background: #111827; color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">온라인</span>' : 
+                '<span style="font-size: 0.65rem; background: #e5e7eb; color: #4b5563; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">오프라인</span>';
+            
+            return `<div class="history-item">
                 <div>
-                    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary-hover); margin-bottom: 2px;">${item.roomTitle || '페어 세션'}</div>
+                    <div style="display: flex; align-items: center; margin-bottom: 2px;">
+                        <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary-hover);">${item.roomTitle || '페어 세션'}</span>
+                        ${modeTag}
+                    </div>
                     <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${item.players.join(' & ')}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div>
                 </div>
@@ -2085,7 +2107,8 @@
                     <div style="font-weight: 900; color: var(--text-main);">${item.totalMin}분</div>
                     <div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div>
                 </div>
-            </div>`).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
+            </div>`;
+        }).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
         showScreen('history-screen');
     };
 
