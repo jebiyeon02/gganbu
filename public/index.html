@@ -1259,7 +1259,7 @@
             <!-- [수정] 오프라인 방 제목 필수 입력 -->
             <div class="input-group">
                 <label for="offline-room-title-input">방 제목</label>
-                <input type="text" id="offline-room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
+                <input type="text" id="offline-room-title-input" placeholder="예: TDD 로또, 블랙잭" maxlength="20">
             </div>
 
             <div class="input-group">
@@ -1385,7 +1385,7 @@
                 <!-- 방 제목 입력란을 로비 방장용으로 이동 -->
                 <div class="input-group">
                     <label for="room-title-input">방 제목</label>
-                    <input type="text" id="room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
+                    <input type="text" id="room-title-input" placeholder="예: TDD 로또, 블랙잭" maxlength="20">
                 </div>
 
                 <div class="input-group">
@@ -1441,7 +1441,7 @@
                 <h2 id="timer-room-title" style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); display: none;"></h2>
 
                 <!-- 설정 톱니바퀴 버튼 (position: static으로 변경) -->
-                <div id="btn-timer-settings" class="timer-settings-btn" style="position: static; margin-bottom: 0;" title="타이머 설정">
+                <div id="btn-timer-settings" class="timer-settings-btn" style="position: static; margin-bottom: 0;" title="설정">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
             </div>
@@ -1491,7 +1491,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
         </button>
         <div class="setup-container">
-            <h1 style="margin-bottom: 2rem;">내 페어 기록</h1>
+            <h1 style="margin-bottom: 2rem;">📊 히스토리</h1>
             <div id="history-list" class="history-list"></div>
         </div>
     </div>
@@ -1500,7 +1500,7 @@
 <!-- 환경설정 모달 -->
 <div id="settings-modal-overlay" class="modal-overlay">
     <div class="modal-content">
-        <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800;">타이머 설정</h3>
+        <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800;">설정</h3>
         
         <!-- 탭 네비게이션 -->
         <div class="modal-tabs">
@@ -1560,7 +1560,7 @@
             <div class="input-group">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                     <label style="margin-bottom: 0;">알림음 볼륨 (<span id="settings-volume-label">50</span>%)</label>
-                    <button id="btn-sound-preview" class="auth-btn" style="padding: 0.3rem 0.7rem; font-size: 0.75rem; border-radius: 0.5rem;">▶ 미리듣기</button>
+                    <button id="btn-sound-preview" class="auth-btn" style="padding: 0.3rem 0.7rem; font-size: 0.75rem; border-radius: 0.5rem;">미리듣기</button>
                 </div>
                 <input type="range" id="settings-volume-slider" class="volume-slider" min="0" max="100" value="50" style="margin-top: 0.5rem;">
             </div>
@@ -1595,7 +1595,7 @@
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 세션을 종료하거나, 세션이 생성된 후 24시간이 지나면 자동으로 세션은 삭제됩니다.</p>
             </div>
             <div>
-                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 방장 이외에는 타이머를 조작할 수 있나요?</p>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 방장 이외에는 타이머를 조작할 수 없나요?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 설정에서 방장만 타이머 제어 설정을 해제하면 세션 참여자들도 가능합니다.</p>
             </div>
             <div>
