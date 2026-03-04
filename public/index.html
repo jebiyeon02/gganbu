@@ -1453,7 +1453,6 @@
         </div>
 
         <div class="controls-wrapper">
-            <!-- [제거] 메인 화면에서 제거 (설정 모달로 이동) -->
             <div class="controls">
                 <div class="btn-wrapper">
                     <button id="toggle-btn" class="control-btn btn-primary">시작</button>
@@ -1512,7 +1511,7 @@
                 </div>
             </div>
 
-            <!-- [추가] 자동으로 턴 넘기기 설정 (세션 설정으로 이동) -->
+            <!-- 자동으로 턴 넘기기 설정 -->
             <div class="settings-row">
                 <label>자동으로 턴 넘기기</label>
                 <label class="switch">
@@ -1579,6 +1578,16 @@
             <div>
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 온라인 세션은 영원히 유지되나요?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 세션을 종료하거나, 세션이 생성된 후 24시간이 지나면 자동으로 세션은 삭제됩니다.</p>
+            </div>
+            <!-- [추가] 5번째 질문 -->
+            <div>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 방장 이외에는 타이머를 조작할 수 없나요?</p>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 설정에서 방장만 타이머 제어 설정을 해제하면 세션 참여자들도 가능합니다.</p>
+            </div>
+            <!-- [추가] 6번째 질문 -->
+            <div>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 턴 횟수가 증가하지 않아요!</p>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">턴 교체 텀을 두기 위해 타이머 실행 3초가 지난 이후 턴을 교대하는 경우에만 턴 횟수가 증가합니다.</p>
             </div>
         </div>
         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center;">
@@ -1682,7 +1691,7 @@
     let timerInterval = null;
     let isTimeUpAlerted = false;
     
-    // [추가] 오프라인 모드용 자동 턴 넘기기 상태
+    // 오프라인 모드용 자동 턴 넘기기 상태
     let autoSwitch = false;
 
     let isSoundEnabled = true;
@@ -1855,7 +1864,7 @@
         document.getElementById('btn-end-timer').disabled = isRunning;
         document.getElementById('btn-reset-turn').disabled = isRunning;
         
-        // [수정] 온라인 세션 권한에 따른 버튼 비활성화 (시각적 + 기능적)
+        // 온라인 세션 권한에 따른 버튼 비활성화 (시각적 + 기능적)
         if (roomCode !== null) {
             const isHost = roomData.hostId === currentUser.uid;
             const canControl = !roomData.isHostOnlyControl || isHost;
@@ -1887,7 +1896,6 @@
         if (isSoundEnabled) { playDingDong(soundVolume); }
         showToast("턴 종료! 역할을 교대하세요. 🔄");
         
-        // [수정] 오프라인 자동 턴 넘기기 로직
         if (roomCode === null && autoSwitch) {
             setTimeout(() => {
                 document.getElementById('switch-btn').click();
@@ -2034,7 +2042,7 @@
             const wasRunning = isRunning;
             isRunning = t.isRunning;
             
-            // [수정] 온라인 세션 자동 턴 넘기기 상태 업데이트
+            // 온라인 세션 자동 턴 넘기기 상태 업데이트
             autoSwitch = data.autoSwitch;
 
             if (data.lastUpdated && !snap.metadata.hasPendingWrites) {
@@ -2072,7 +2080,7 @@
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
                 
-                // [수정] 턴 변경 시 타이머 즉시 시작 로직 동기화
+                // 턴 변경 시 타이머 즉시 시작 로직 동기화
                 const turnChanged = t.turnCount !== lastObservedTurn;
                 
                 if (isRunning && (turnChanged || !wasRunning)) {
@@ -2150,11 +2158,9 @@
                 playAlert(); 
                 refreshUI();
                 
-                // [수정] 온라인 모드 자동 턴 넘기기 로직 (Firebase 연동 강화)
                 if (roomCode !== null && autoSwitch) {
                     const isHost = roomData.hostId === currentUser.uid;
                     const isDriver = players[driverIndex]?.uid === currentUser.uid;
-                    // 방장 제어 모드면 방장만, 아니면 현재 드라이버가 다음 턴 트리거 수행
                     const canTrigger = roomData.isHostOnlyControl ? isHost : isDriver;
                     
                     if(canTrigger) {
@@ -2164,7 +2170,6 @@
                             const latest = snap.data();
                             
                             const adjustedNow = Date.now() + clientServerDiff;
-                            // 이미 턴이 넘어갔거나 타이머가 진행 중이면 중복 실행 방지
                             if(!latest || !latest.timer || (latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - adjustedNow) / 1000) > 2)) return;
 
                             const nextIdx = (latest.timer.driverIndex + 1) % latest.players.length;
@@ -2175,7 +2180,7 @@
                                 "timer.driverIndex": nextIdx,
                                 "timer.turnCount": nextTurnCount,
                                 "timer.endTime": newEnd,
-                                "timer.isRunning": true, // 다음 턴 즉시 시작 동기화
+                                "timer.isRunning": true, 
                                 "timer.pausedTimeLeft": latest.duration,
                                 "timer.totalStudySeconds": totalStudySeconds, 
                                 lastUpdated: serverTimestamp()
@@ -2215,6 +2220,7 @@
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                 "timer.pausedTimeLeft": duration,
+                "timer.totalStudySeconds": totalStudySeconds, // 초기화 시 현재까지의 학습시간은 유지
                 lastUpdated: serverTimestamp()
             });
             showToast("타이머가 초기화되었습니다. ⏱️");
@@ -2462,7 +2468,6 @@
         if (roomCode !== null) {
             hostControlRow.style.display = 'flex';
             document.getElementById('settings-host-only-control').checked = roomData.isHostOnlyControl;
-            // [수정] 온라인 모드 자동 턴 설정 초기값
             document.getElementById('settings-auto-switch').checked = roomData.autoSwitch;
             
             const isHost = roomData.hostId === currentUser.uid;
@@ -2477,7 +2482,6 @@
             hostControlRow.style.display = 'none';
             sessionTabPane.classList.remove('disabled');
             sessionHint.style.display = 'none';
-            // [추가] 오프라인 모드 자동 턴 설정 초기값
             document.getElementById('settings-auto-switch').checked = autoSwitch;
         }
 
@@ -2505,13 +2509,11 @@
         if (roomCode === null) {
             const isResetNeeded = duration !== newDur;
             duration = newDur;
-            // [추가] 오프라인 자동 턴 넘기기 로컬 상태 업데이트
             autoSwitch = document.getElementById('settings-auto-switch').checked;
             if (isResetNeeded && !isRunning) { timeLeft = duration; }
             refreshUI();
         } else {
             if (roomData.hostId === currentUser.uid) {
-                // [수정] 온라인 모드 자동 턴 넘기기 Firebase 업데이트
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     duration: newDur, 
                     isHostOnlyControl: document.getElementById('settings-host-only-control').checked,
