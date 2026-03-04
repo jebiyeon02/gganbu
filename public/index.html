@@ -1582,7 +1582,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
     import { firebaseConfig } from "./firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -1613,6 +1613,9 @@
 
     // [추가] 인증 확인 플래그 (새로고침 시 로그인 버튼 깜빡임 방지용)
     let isAuthChecked = false;
+    
+    // [추가] 클라이언트-서버 간 시간차 (Clock Drift) 보정 변수
+    let clientServerDiff = 0;
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -1921,6 +1924,14 @@
             isRunning = t.isRunning;
             document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
             
+            // [추가] 서버 시간과의 동기화 (Offset 계산)
+            // lastUpdated 필드가 존재할 때, 클라이언트 시스템 클락과의 오차를 측정
+            if (data.lastUpdated && !snap.metadata.hasPendingWrites) {
+                const serverMillis = data.lastUpdated.toMillis();
+                const localMillis = Date.now();
+                clientServerDiff = serverMillis - localMillis;
+            }
+
             // [수정] 세션 종료 상태 감지 (참여자 전원 종료 처리)
             if (data.state === 'ended') {
                 finishSession();
@@ -1955,8 +1966,10 @@
                 
                 // [수정] 기기 간 시간차(Clock Drift) 방지 로직
                 // 타이머가 시작될 때만 endTime을 기준으로 timeLeft를 한 번 계산
+                // 로컬의 Date.now()에 보정값(clientServerDiff)을 적용하여 서버 시간 기준으로 맞춤
                 if (isRunning && !wasRunning) {
-                    timeLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000));
+                    const adjustedNow = Date.now() + clientServerDiff;
+                    timeLeft = Math.max(0, Math.ceil((t.endTime - adjustedNow) / 1000));
                     startLocalInterval();
                 } else if (!isRunning) {
                     timeLeft = t.pausedTimeLeft;
@@ -1982,6 +1995,7 @@
             state: 'playing', 
             duration: dur, 
             roomTitle: rTitle, // [추가] 방 제목 업데이트
+            lastUpdated: serverTimestamp(), // 서버 시간을 기준으로 동기화하기 위한 필드
             "timer.pausedTimeLeft": dur 
         });
     };
@@ -1993,8 +2007,24 @@
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 조작할 수 있습니다. 👑", true); return; }
             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
             const snap = await getDoc(ref); const t = snap.data().timer;
-            if(isRunning) { const nowLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000)); await updateDoc(ref, { "timer.isRunning": false, "timer.pausedTimeLeft": nowLeft }); }
-            else { const newEnd = Date.now() + (t.pausedTimeLeft * 1000); await updateDoc(ref, { "timer.isRunning": true, "timer.endTime": newEnd }); }
+            if(isRunning) { 
+                const adjustedNow = Date.now() + clientServerDiff;
+                const nowLeft = Math.max(0, Math.ceil((t.endTime - adjustedNow) / 1000)); 
+                await updateDoc(ref, { 
+                    "timer.isRunning": false, 
+                    "timer.pausedTimeLeft": nowLeft,
+                    lastUpdated: serverTimestamp()
+                }); 
+            }
+            else { 
+                const adjustedNow = Date.now() + clientServerDiff;
+                const newEnd = adjustedNow + (t.pausedTimeLeft * 1000); 
+                await updateDoc(ref, { 
+                    "timer.isRunning": true, 
+                    "timer.endTime": newEnd,
+                    lastUpdated: serverTimestamp()
+                }); 
+            }
         }
     };
     
@@ -2025,17 +2055,21 @@
                             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
                             const snap = await getDoc(ref);
                             const latest = snap.data();
-                            if(!latest || !latest.timer || latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - Date.now()) / 1000) > 2) return;
+                            
+                            // 보정된 시간 적용
+                            const adjustedNow = Date.now() + clientServerDiff;
+                            if(!latest || !latest.timer || latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - adjustedNow) / 1000) > 2) return;
 
                             const nextIdx = (latest.timer.driverIndex + 1) % latest.players.length;
                             const nextTurnCount = latest.timer.turnCount + 1;
-                            const newEnd = Date.now() + (latest.duration * 1000);
+                            const newEnd = adjustedNow + (latest.duration * 1000);
                             await updateDoc(ref, {
                                 "timer.driverIndex": nextIdx,
                                 "timer.turnCount": nextTurnCount,
                                 "timer.endTime": newEnd,
                                 "timer.isRunning": true,
-                                "timer.pausedTimeLeft": latest.duration
+                                "timer.pausedTimeLeft": latest.duration,
+                                lastUpdated: serverTimestamp()
                             });
                         }, 1200);
                     }
@@ -2054,7 +2088,13 @@
             // [수정] 방장 전용 제어 옵션 확인
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 턴을 넘길 수 있습니다. 👑", true); return; }
             const nextIdx = (driverIndex + 1) % players.length; const nextTurnCount = isValidTurn ? turnCount + 1 : turnCount;
-            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.isRunning": false, "timer.pausedTimeLeft": duration, "timer.driverIndex": nextIdx, "timer.turnCount": nextTurnCount }); 
+            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
+                "timer.isRunning": false, 
+                "timer.pausedTimeLeft": duration, 
+                "timer.driverIndex": nextIdx, 
+                "timer.turnCount": nextTurnCount,
+                lastUpdated: serverTimestamp()
+            }); 
         }
     };
 
@@ -2065,7 +2105,10 @@
         } else {
             // [수정] 방장 전용 제어 옵션 확인
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
-            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.pausedTimeLeft": duration });
+            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
+                "timer.pausedTimeLeft": duration,
+                lastUpdated: serverTimestamp()
+            });
             showToast("타이머가 초기화되었습니다. ⏱️");
         }
     };
@@ -2138,7 +2181,10 @@
         } else {
             // 온라인 모드: Firestore 상태를 'ended'로 변경하여 모든 참여자에게 전파
             try {
-                await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { state: 'ended' });
+                await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
+                    state: 'ended',
+                    lastUpdated: serverTimestamp() 
+                });
             } catch(e) { console.error(e); }
         }
     };
@@ -2298,7 +2344,8 @@
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     duration: newDur, 
                     isHostOnlyControl: document.getElementById('settings-host-only-control').checked,
-                    "timer.pausedTimeLeft": isRunning ? timeLeft : newDur
+                    "timer.pausedTimeLeft": isRunning ? timeLeft : newDur,
+                    lastUpdated: serverTimestamp()
                 });
             } else {
                 // 방장이 아니더라도 개인 설정 저장을 위해 알림만 띄움
