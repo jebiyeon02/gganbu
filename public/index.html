@@ -617,7 +617,7 @@
 
         /* 자동 턴 넘기기 옵션 스타일 */
         .auto-switch-wrapper {
-            display: flex;
+            display: none; /* [수정] 메인 화면에서 제거 (설정 모달로 이동) */
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -802,7 +802,7 @@
             align-items: center;
             text-align: left;
             transition: 0.2s;
-            cursor: pointer; /* [수정] 클릭 가능하도록 커서 추가 */
+            cursor: pointer; /* 클릭 가능하도록 커서 추가 */
         }
 
         .history-item:hover {
@@ -1166,14 +1166,14 @@
             </div>
         </div>
 
-        <!-- [수정] 초기 구글 로그인 버튼 숨김 -->
+        <!-- 초기 구글 로그인 버튼 숨김 -->
         <button id="btn-login" class="auth-btn" style="display: none;">
             <img src="google.png" alt="Google" style="width:18px; height:18px; position: relative; top: 3.2px; right:3px;">
             <span>구글 계정으로 로그인</span>
         </button>
     </div>
 
-    <!-- [추가] 왼쪽 상단 FAQ 버튼 영역 -->
+    <!-- 왼쪽 상단 FAQ 버튼 영역 -->
     <div id="left-nav" class="left-nav" style="display: none;">
         <button id="btn-faq" class="auth-btn">❓ FAQ</button>
     </div>
@@ -1241,7 +1241,7 @@
                 <h1>오프라인 모드</h1>
             </div>
 
-            <!-- [추가] 오프라인 방 제목 입력란 -->
+            <!-- 오프라인 방 제목 입력란 -->
             <div class="input-group">
                 <label for="offline-room-title-input">방 제목 (선택)</label>
                 <input type="text" id="offline-room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
@@ -1367,7 +1367,7 @@
             </div>
 
             <div id="host-controls" style="display: none; margin-top: 2.5rem; text-align: left;">
-                <!-- [수정] 방 제목 입력란을 로비 방장용으로 이동 -->
+                <!-- 방 제목 입력란을 로비 방장용으로 이동 -->
                 <div class="input-group">
                     <label for="room-title-input">방 제목 (필수)</label>
                     <input type="text" id="room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
@@ -1453,17 +1453,7 @@
         </div>
 
         <div class="controls-wrapper">
-            <div class="auto-switch-wrapper">
-                <input type="checkbox" id="auto-switch-checkbox" class="auto-switch-checkbox">
-                <label for="auto-switch-checkbox" class="auto-switch-label">자동으로 턴 넘기기</label>
-                <!-- 자동 턴 넘기기 도움말 아이콘 및 툴팁 추가 -->
-                <div class="tooltip-container">
-                    <div class="info-icon" style="margin-left: 4px;">?</div>
-                    <div class="tooltip-box" style="white-space: normal; width: 220px; text-align: left;">
-                        턴 종료 시 자동으로 다음 크루로 교대하고 타이머를 즉시 시작합니다.
-                    </div>
-                </div>
-            </div>
+            <!-- [제거] 메인 화면에서 제거 (설정 모달로 이동) -->
             <div class="controls">
                 <div class="btn-wrapper">
                     <button id="toggle-btn" class="control-btn btn-primary">시작</button>
@@ -1520,6 +1510,15 @@
                     <span>최소 10초</span>
                     <span>최대 30분 00초</span>
                 </div>
+            </div>
+
+            <!-- [추가] 자동으로 턴 넘기기 설정 (세션 설정으로 이동) -->
+            <div class="settings-row">
+                <label>자동으로 턴 넘기기</label>
+                <label class="switch">
+                    <input type="checkbox" id="settings-auto-switch">
+                    <span class="slider"></span>
+                </label>
             </div>
 
             <!-- 방장만 타이머 제어 설정 (온라인 모드 전용) -->
@@ -1591,7 +1590,7 @@
     </div>
 </div>
 
-<!-- 히스토리 상세 정보 모달 [추가] -->
+<!-- 히스토리 상세 정보 모달 -->
 <div id="history-detail-modal-overlay" class="modal-overlay">
     <div class="modal-content" style="max-width: 480px;">
         <h3 id="hist-detail-title" style="margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 900; color: var(--primary-hover);">세션 상세 정보</h3>
@@ -1645,7 +1644,6 @@
             <div class="report-stat"><span class="stat-label">진행 시간</span><span id="rep-time" class="stat-value">0분</span></div>
             <div class="report-stat"><span class="stat-label">교대 횟수</span><span id="rep-turns" class="stat-value">0회</span></div>
             <div class="report-stat"><span class="stat-label">날짜</span><span id="rep-date" class="stat-value">-</span></div>
-            <!-- [추가] 시작/종료 시간 표시 -->
             <div class="report-stat"><span class="stat-label">시작 시간</span><span id="rep-start-time" class="stat-value">-</span></div>
             <div class="report-stat"><span class="stat-label">종료 시간</span><span id="rep-end-time" class="stat-value">-</span></div>
         </div>
@@ -1683,6 +1681,9 @@
     let isRunning = false;
     let timerInterval = null;
     let isTimeUpAlerted = false;
+    
+    // [추가] 오프라인 모드용 자동 턴 넘기기 상태
+    let autoSwitch = false;
 
     let isSoundEnabled = true;
     let soundVolume = 0.5;
@@ -1693,8 +1694,11 @@
     // 클라이언트-서버 간 시간차 (Clock Drift) 보정 변수
     let clientServerDiff = 0;
 
-    // [추가] 실제 학습 시간 (타이머가 작동한 시간) 추적 변수
+    // 실제 학습 시간 (타이머가 작동한 시간) 추적 변수
     let totalStudySeconds = 0;
+    
+    // 온라인 세션 턴 변경 감지용
+    let lastObservedTurn = 0;
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -1851,12 +1855,15 @@
         document.getElementById('btn-end-timer').disabled = isRunning;
         document.getElementById('btn-reset-turn').disabled = isRunning;
         
-        const autoSwitchCheck = document.getElementById('auto-switch-checkbox');
+        // [수정] 온라인 세션 권한에 따른 버튼 비활성화 (시각적 + 기능적)
         if (roomCode !== null) {
             const isHost = roomData.hostId === currentUser.uid;
-            autoSwitchCheck.disabled = roomData.isHostOnlyControl && !isHost;
-        } else {
-            autoSwitchCheck.disabled = false;
+            const canControl = !roomData.isHostOnlyControl || isHost;
+            
+            tBtn.disabled = !canControl;
+            sBtn.disabled = isRunning || !canControl;
+            document.getElementById('btn-reset-turn').disabled = isRunning || !canControl;
+            document.getElementById('btn-end-timer').disabled = isRunning || !canControl;
         }
     }
 
@@ -1880,7 +1887,8 @@
         if (isSoundEnabled) { playDingDong(soundVolume); }
         showToast("턴 종료! 역할을 교대하세요. 🔄");
         
-        if (roomCode === null && document.getElementById('auto-switch-checkbox').checked) {
+        // [수정] 오프라인 자동 턴 넘기기 로직
+        if (roomCode === null && autoSwitch) {
             setTimeout(() => {
                 document.getElementById('switch-btn').click();
                 setTimeout(() => document.getElementById('toggle-btn').click(), 500);
@@ -1913,7 +1921,7 @@
         const mins = parseInt(document.getElementById('duration-min').value) || 0;
         const secs = parseInt(document.getElementById('duration-sec').value) || 0;
         duration = Math.max(10, mins * 60 + secs); timeLeft = duration; driverIndex = 0; turnCount = 1; isRunning = false;
-        totalStudySeconds = 0; // [추가] 초기화
+        totalStudySeconds = 0; 
 
         const timerTitleEl = document.getElementById('timer-room-title');
         const timerHostInfoEl = document.getElementById('timer-host-info');
@@ -1951,7 +1959,7 @@
             roomTitle: "", 
             isHostOnlyControl: true, 
             createdAt: serverTimestamp(), 
-            timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1, totalStudySeconds: 0 } // [수정] 학습시간 필드
+            timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1, totalStudySeconds: 0 } 
         });
         startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
     };
@@ -2021,13 +2029,14 @@
             players = data.players; duration = data.duration;
             const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; 
             
-            // [수정] 학습 시간 동기화
             totalStudySeconds = t.totalStudySeconds || 0;
 
             const wasRunning = isRunning;
             isRunning = t.isRunning;
-            document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
             
+            // [수정] 온라인 세션 자동 턴 넘기기 상태 업데이트
+            autoSwitch = data.autoSwitch;
+
             if (data.lastUpdated && !snap.metadata.hasPendingWrites) {
                 const serverMillis = data.lastUpdated.toMillis();
                 const localMillis = Date.now();
@@ -2063,13 +2072,17 @@
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
                 
-                if (isRunning && !wasRunning) {
+                // [수정] 턴 변경 시 타이머 즉시 시작 로직 동기화
+                const turnChanged = t.turnCount !== lastObservedTurn;
+                
+                if (isRunning && (turnChanged || !wasRunning)) {
                     const adjustedNow = Date.now() + clientServerDiff;
                     timeLeft = Math.max(0, Math.ceil((t.endTime - adjustedNow) / 1000));
                     startLocalInterval();
                 } else if (!isRunning) {
                     timeLeft = t.pausedTimeLeft;
                 }
+                lastObservedTurn = t.turnCount;
             }
             refreshUI();
         });
@@ -2108,7 +2121,7 @@
                 await updateDoc(ref, { 
                     "timer.isRunning": false, 
                     "timer.pausedTimeLeft": nowLeft,
-                    "timer.totalStudySeconds": totalStudySeconds, // [수정] 중지 시 학습시간 기록
+                    "timer.totalStudySeconds": totalStudySeconds, 
                     lastUpdated: serverTimestamp()
                 }); 
             }
@@ -2130,16 +2143,18 @@
             if(!isRunning) { clearInterval(timerInterval); return; }
             if(timeLeft > 0) { 
                 timeLeft--; 
-                totalStudySeconds++; // [추가] 실제 학습 시간 누적
+                totalStudySeconds++; 
                 refreshUI(); 
             } else { 
                 isRunning = false; 
                 playAlert(); 
                 refreshUI();
                 
-                if (roomCode !== null && roomData.autoSwitch) {
+                // [수정] 온라인 모드 자동 턴 넘기기 로직 (Firebase 연동 강화)
+                if (roomCode !== null && autoSwitch) {
                     const isHost = roomData.hostId === currentUser.uid;
                     const isDriver = players[driverIndex]?.uid === currentUser.uid;
+                    // 방장 제어 모드면 방장만, 아니면 현재 드라이버가 다음 턴 트리거 수행
                     const canTrigger = roomData.isHostOnlyControl ? isHost : isDriver;
                     
                     if(canTrigger) {
@@ -2147,19 +2162,22 @@
                             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
                             const snap = await getDoc(ref);
                             const latest = snap.data();
+                            
                             const adjustedNow = Date.now() + clientServerDiff;
-                            if(!latest || !latest.timer || latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - adjustedNow) / 1000) > 2) return;
+                            // 이미 턴이 넘어갔거나 타이머가 진행 중이면 중복 실행 방지
+                            if(!latest || !latest.timer || (latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - adjustedNow) / 1000) > 2)) return;
 
                             const nextIdx = (latest.timer.driverIndex + 1) % latest.players.length;
                             const nextTurnCount = latest.timer.turnCount + 1;
-                            const newEnd = adjustedNow + (latest.duration * 1000);
+                            const newEnd = adjustedNow + (latest.duration * 1000); 
+                            
                             await updateDoc(ref, {
                                 "timer.driverIndex": nextIdx,
                                 "timer.turnCount": nextTurnCount,
                                 "timer.endTime": newEnd,
-                                "timer.isRunning": true,
+                                "timer.isRunning": true, // 다음 턴 즉시 시작 동기화
                                 "timer.pausedTimeLeft": latest.duration,
-                                "timer.totalStudySeconds": totalStudySeconds, // 학습 시간 기록
+                                "timer.totalStudySeconds": totalStudySeconds, 
                                 lastUpdated: serverTimestamp()
                             });
                         }, 1200);
@@ -2183,7 +2201,7 @@
                 "timer.pausedTimeLeft": duration, 
                 "timer.driverIndex": nextIdx, 
                 "timer.turnCount": nextTurnCount,
-                "timer.totalStudySeconds": totalStudySeconds, // 학습 시간 기록
+                "timer.totalStudySeconds": totalStudySeconds,
                 lastUpdated: serverTimestamp()
             }); 
         }
@@ -2209,14 +2227,12 @@
         else if (e.code === 'Enter') { e.preventDefault(); document.getElementById('switch-btn').click(); }
     });
 
-    // [수정] 초 단위를 분:초로 변환
     const formatSeconds = (totalSeconds) => {
         const m = Math.floor(totalSeconds / 60);
         const s = totalSeconds % 60;
         return `${m}분 ${s}초`;
     };
 
-    // [수정] 세션 종료 로직 통합 (공식 진행 시간 참조)
     const finishSession = async () => {
         if (document.getElementById('report-modal-overlay').classList.contains('active')) return;
         
@@ -2238,13 +2254,11 @@
 
         const startedAtDate = new Date(startedAtMillis);
 
-        // 리포트 모달 표시 정보 업데이트
         document.getElementById('rep-players').textContent = players.map(p => p.name || p).join(', ');
         document.getElementById('rep-time').textContent = `${totalMin}분`; 
         document.getElementById('rep-turns').textContent = `${turnCount}회`; 
         document.getElementById('rep-date').textContent = startedAtDate.toLocaleDateString();
         
-        // [추가] 시작/종료 시간 업데이트
         document.getElementById('rep-start-time').textContent = startedAtDate.toLocaleTimeString();
         document.getElementById('rep-end-time').textContent = endedAtDate.toLocaleTimeString();
         
@@ -2268,9 +2282,9 @@
                     totalMin, 
                     turnCount, 
                     isOnline: roomCode !== null,
-                    sessionStartedAt: Timestamp.fromMillis(startedAtMillis), // [추가]
-                    sessionEndedAt: Timestamp.fromMillis(endedAtMillis), // [추가]
-                    totalStudySeconds: totalStudySeconds, // [추가] 실제 학습 시간
+                    sessionStartedAt: Timestamp.fromMillis(startedAtMillis), 
+                    sessionEndedAt: Timestamp.fromMillis(endedAtMillis), 
+                    totalStudySeconds: totalStudySeconds, 
                     createdAt: Timestamp.now() 
                 });
             } catch(e) { console.error("History save error:", e); }
@@ -2318,7 +2332,6 @@
         document.getElementById('modal-overlay').classList.remove('active');
     };
 
-    // [추가] 히스토리 상세 보기 기능
     const showHistoryDetail = (item) => {
         const modal = document.getElementById('history-detail-modal-overlay');
         document.getElementById('hist-detail-title').textContent = item.roomTitle || '페어 세션';
@@ -2449,6 +2462,8 @@
         if (roomCode !== null) {
             hostControlRow.style.display = 'flex';
             document.getElementById('settings-host-only-control').checked = roomData.isHostOnlyControl;
+            // [수정] 온라인 모드 자동 턴 설정 초기값
+            document.getElementById('settings-auto-switch').checked = roomData.autoSwitch;
             
             const isHost = roomData.hostId === currentUser.uid;
             if (!isHost) {
@@ -2462,6 +2477,8 @@
             hostControlRow.style.display = 'none';
             sessionTabPane.classList.remove('disabled');
             sessionHint.style.display = 'none';
+            // [추가] 오프라인 모드 자동 턴 설정 초기값
+            document.getElementById('settings-auto-switch').checked = autoSwitch;
         }
 
         settingsModal.classList.add('active');
@@ -2488,13 +2505,17 @@
         if (roomCode === null) {
             const isResetNeeded = duration !== newDur;
             duration = newDur;
+            // [추가] 오프라인 자동 턴 넘기기 로컬 상태 업데이트
+            autoSwitch = document.getElementById('settings-auto-switch').checked;
             if (isResetNeeded && !isRunning) { timeLeft = duration; }
             refreshUI();
         } else {
             if (roomData.hostId === currentUser.uid) {
+                // [수정] 온라인 모드 자동 턴 넘기기 Firebase 업데이트
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     duration: newDur, 
                     isHostOnlyControl: document.getElementById('settings-host-only-control').checked,
+                    autoSwitch: document.getElementById('settings-auto-switch').checked,
                     "timer.pausedTimeLeft": isRunning ? timeLeft : newDur,
                     lastUpdated: serverTimestamp()
                 });
