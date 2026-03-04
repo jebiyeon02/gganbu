@@ -1559,7 +1559,7 @@
     </div>
 </div>
 
-<!-- FAQ 모달 [추가] -->
+<!-- FAQ 모달 [수정] -->
 <div id="faq-modal-overlay" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px; text-align: left;">
         <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800; text-align: center;">자주 묻는 질문 (FAQ)</h3>
@@ -1576,8 +1576,17 @@
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 실수로 세션을 나와버려서 메인 화면으로 이동됐는데 어떡하죠?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">아직 세션이 종료되지 않았다면 동일한 방 코드를 입력하여 기존 세션에 다시 참여할 수 있습니다.</p>
             </div>
+            <!-- [추가] 4번째 질문 -->
+            <div>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 온라인 세션은 영원히 유지되나요?</p>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 세션을 종료하거나, 세션이 생성된 후 24시간이 지나면 자동으로 세션은 삭제됩니다.</p>
+            </div>
         </div>
-        <div class="modal-buttons" style="margin-top: 2rem;">
+        <!-- [추가] 피드백 설문지 링크 -->
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center;">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfmGGwQsqLOHQhPGO7JW9Bujadjhdrob0l65t-Vy-63S4ICCA/viewform?usp=dialog" target="_blank" style="color: var(--primary-hover); font-weight: 800; font-size: 0.9rem; text-decoration: none;">💬 깐부에게 소중한 의견 남기기</a>
+        </div>
+        <div class="modal-buttons" style="margin-top: 1.5rem;">
             <button id="faq-close" class="modal-btn btn-primary" style="width: 100%;">확인</button>
         </div>
     </div>
@@ -1621,7 +1630,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
     import { firebaseConfig } from "./firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -1922,6 +1931,7 @@
             roomCode, hostId: currentUser.uid, players: [me], state: 'lobby', duration: 300, autoSwitch: false,
             roomTitle: "", // [수정] 처음에는 빈값으로 초기화
             isHostOnlyControl: true, // [추가] 기본값 방장만 제어
+            createdAt: serverTimestamp(), // [추가] 24시간 자동 삭제를 위한 기준 시간
             timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1 }
         });
         startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
@@ -1933,6 +1943,17 @@
         const roomRef = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', code);
         const snap = await getDoc(roomRef);
         if(!snap.exists()) { showToast("존재하지 않는 방입니다. ✕", true); return; }
+        
+        // [추가] 만료된 방 체크
+        if (snap.data().createdAt) {
+            const created = snap.data().createdAt.toMillis();
+            if (Date.now() - created > 24 * 60 * 60 * 1000) {
+                await deleteDoc(roomRef);
+                showToast("만료된 세션입니다. ✕", true);
+                return;
+            }
+        }
+
         if(snap.data().players.length >= 3) { showToast("방이 가득 찼습니다. ✕", true); return; }
         const me = { 
             name: nick, 
@@ -1946,9 +1967,27 @@
     function startSync() {
         if(unsubRoom) unsubRoom();
         unsubRoom = onSnapshot(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), (snap) => {
-            if(!snap.exists()) return;
+            // [수정] 문서 삭제 감지 시 종료 처리
+            if(!snap.exists()) {
+                if (currentMode === 'timer-screen') finishSession();
+                else goHome();
+                return;
+            }
+            
             const data = snap.data();
             roomData = data; 
+
+            // [추가] 24시간 만료 체크 (onSnapshot에서도 수행)
+            if (data.createdAt) {
+                const created = data.createdAt.toMillis();
+                if (Date.now() - created > 24 * 60 * 60 * 1000) {
+                    if (data.hostId === currentUser.uid) deleteDoc(snap.ref);
+                    goHome();
+                    showToast("세션이 만료되어 삭제되었습니다. ⏱️", true);
+                    return;
+                }
+            }
+
             document.getElementById('display-room-code').textContent = roomCode; 
             document.getElementById('player-count').textContent = data.players.length;
             
@@ -2188,7 +2227,7 @@
         // [수정] 히스토리 타이틀 로직 (오프라인 방 제목 반영)
         let historyTitle = "페어 세션";
         if (roomCode !== null) {
-            historyTitle = roomData.roomTitle;
+            historyTitle = roomData ? (roomData.roomTitle || "온라인 세션") : "온라인 세션";
         } else {
             const offTitle = document.getElementById('offline-room-title-input').value.trim();
             historyTitle = offTitle || "오프라인 세션";
@@ -2209,8 +2248,16 @@
         }
 
         // 모든 확인/설정 모달 닫고 리포트 모달 표시
-        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        document.querySelectorAll('.modal-overlay:not(#report-modal-overlay)').forEach(m => m.classList.remove('active'));
         document.getElementById('report-modal-overlay').classList.add('active');
+
+        // [추가] 방장인 경우 세션 데이터 완전 삭제 (히스토리 저장 후 수행)
+        if (roomCode !== null && roomData && roomData.hostId === currentUser.uid) {
+            try {
+                const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
+                await deleteDoc(ref);
+            } catch(e) { console.error("Room deletion error:", e); }
+        }
     };
 
     // [수정] 세션 종료 버튼 클릭 시 확인 모달 표시
@@ -2228,7 +2275,7 @@
         if (roomCode === null) {
             finishSession();
         } else {
-            // 온라인 모드: Firestore 상태를 'ended'로 변경하여 모든 참여자에게 전파
+            // 온라인 모드: Firestore 상태를 'ended'로 변경하여 모든 참여자에게 전파 (감지 후 각자 finishSession 실행)
             try {
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     state: 'ended',
