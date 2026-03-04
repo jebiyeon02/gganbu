@@ -5,11 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>깐부 - 페어 프로그래밍 타이머</title>
     <meta name="description" content="페어 프로그래밍을 위한 타이머">
-    <meta property="og:image" content="https://woowacourse-gganbu.web.app/logo.png">
-    <!-- 배달의민족 한나프로체 폰트 추가 -->
-    <link rel="stylesheet" href="https://fastly.Projectnoonnu.com/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.css">
 
+    <link rel="icon" href="favicon.png" type="image/png">
+
+<!-- Open Graph 메타 태그 (Slack, 카카오톡 등 미리보기용) -->
+<meta property="og:title" content="깐부 - 페어 프로그래밍 타이머">
+<meta property="og:description" content="페어 프로그래밍을 위한 타이머">
+<meta property="og:image" content="https://woowacourse-gganbu.web.app/logo.png">
+<meta property="og:url" content="https://woowacourse-gganbu.web.app">
+<meta property="og:type" content="website">
+    
     <style>
+        /* [수정] 외부 CSS 대신 폰트를 직접 정의하여 적용성 개선 */
+        @font-face {
+            font-family: 'BMHANNAPro';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.0/BMHANNAAir.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         :root {
             /* 메인 테마 색상: #0CEFD3 */
             --primary-color: #0CEFD3;
@@ -617,7 +632,7 @@
 
         /* 자동 턴 넘기기 옵션 스타일 */
         .auto-switch-wrapper {
-            display: none; /* [수정] 메인 화면에서 제거 (설정 모달로 이동) */
+            display: none; /* 메인 화면에서 제거 (설정 모달로 이동) */
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -1241,9 +1256,9 @@
                 <h1>오프라인 모드</h1>
             </div>
 
-            <!-- 오프라인 방 제목 입력란 -->
+            <!-- [수정] 오프라인 방 제목 필수 입력 -->
             <div class="input-group">
-                <label for="offline-room-title-input">방 제목 (선택)</label>
+                <label for="offline-room-title-input">방 제목</label>
                 <input type="text" id="offline-room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
             </div>
 
@@ -1369,7 +1384,7 @@
             <div id="host-controls" style="display: none; margin-top: 2.5rem; text-align: left;">
                 <!-- 방 제목 입력란을 로비 방장용으로 이동 -->
                 <div class="input-group">
-                    <label for="room-title-input">방 제목 (필수)</label>
+                    <label for="room-title-input">방 제목</label>
                     <input type="text" id="room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
                 </div>
 
@@ -1579,12 +1594,10 @@
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 온라인 세션은 영원히 유지되나요?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 세션을 종료하거나, 세션이 생성된 후 24시간이 지나면 자동으로 세션은 삭제됩니다.</p>
             </div>
-            <!-- [추가] 5번째 질문 -->
             <div>
-                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 방장 이외에는 타이머를 조작할 수 없나요?</p>
+                <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 방장 이외에는 타이머를 조작할 수 있나요?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 설정에서 방장만 타이머 제어 설정을 해제하면 세션 참여자들도 가능합니다.</p>
             </div>
-            <!-- [추가] 6번째 질문 -->
             <div>
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 턴 횟수가 증가하지 않아요!</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">턴 교체 텀을 두기 위해 타이머 실행 3초가 지난 이후 턴을 교대하는 경우에만 턴 횟수가 증가합니다.</p>
@@ -1864,7 +1877,6 @@
         document.getElementById('btn-end-timer').disabled = isRunning;
         document.getElementById('btn-reset-turn').disabled = isRunning;
         
-        // 온라인 세션 권한에 따른 버튼 비활성화 (시각적 + 기능적)
         if (roomCode !== null) {
             const isHost = roomData.hostId === currentUser.uid;
             const canControl = !roomData.isHostOnlyControl || isHost;
@@ -1921,6 +1933,10 @@
         if(pList.length < 2) { showToast("최소 두 명의 크루가 필요합니다. 👥", true); return; }
         if (new Set(pList).size !== pList.length) { showToast("중복된 닉네임이 있습니다. ✕", true); return; }
         
+        // [수정] 오프라인 방 제목 필수 체크
+        const offTitleInput = document.getElementById('offline-room-title-input').value.trim();
+        if(!offTitleInput) { showToast("방 제목을 입력해주세요. 🏠", true); return; }
+
         players = pList.map(n => ({
             name: n, 
             photo: (n === myNickname && currentUser && !currentUser.isAnonymous) ? currentUser.photoURL : null
@@ -1933,15 +1949,10 @@
 
         const timerTitleEl = document.getElementById('timer-room-title');
         const timerHostInfoEl = document.getElementById('timer-host-info');
-        const offTitle = document.getElementById('offline-room-title-input').value.trim();
         
         timerHostInfoEl.style.display = 'none'; 
-        if(offTitle) {
-            timerTitleEl.textContent = offTitle;
-            timerTitleEl.style.display = 'block';
-        } else {
-            timerTitleEl.style.display = 'none';
-        }
+        timerTitleEl.textContent = offTitleInput;
+        timerTitleEl.style.display = 'block';
 
         sessionStartTime = Date.now(); showScreen('timer-screen'); refreshUI();
     };
@@ -2042,7 +2053,6 @@
             const wasRunning = isRunning;
             isRunning = t.isRunning;
             
-            // 온라인 세션 자동 턴 넘기기 상태 업데이트
             autoSwitch = data.autoSwitch;
 
             if (data.lastUpdated && !snap.metadata.hasPendingWrites) {
@@ -2080,7 +2090,6 @@
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
                 
-                // 턴 변경 시 타이머 즉시 시작 로직 동기화
                 const turnChanged = t.turnCount !== lastObservedTurn;
                 
                 if (isRunning && (turnChanged || !wasRunning)) {
@@ -2220,7 +2229,6 @@
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                 "timer.pausedTimeLeft": duration,
-                "timer.totalStudySeconds": totalStudySeconds, // 초기화 시 현재까지의 학습시간은 유지
                 lastUpdated: serverTimestamp()
             });
             showToast("타이머가 초기화되었습니다. ⏱️");
