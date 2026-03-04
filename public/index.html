@@ -1403,12 +1403,19 @@
 
     <!-- 타이머 화면 -->
     <div id="timer-screen" class="screen">
-        <!-- [추가] 타이머 화면 상단 방 제목 표시 -->
-        <h2 id="timer-room-title" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; color: var(--text-main); display: none;"></h2>
+        <!-- [수정] 방 제목과 설정 버튼을 위한 헤더 컨테이너 -->
+        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- [추가] 타이머 화면 상단 방 제목 표시 -->
+                <h2 id="timer-room-title" style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); display: none;"></h2>
 
-        <!-- 설정 톱니바퀴 버튼 -->
-        <div id="btn-timer-settings" class="timer-settings-btn" title="타이머 설정">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <!-- 설정 톱니바퀴 버튼 (position: static으로 변경) -->
+                <div id="btn-timer-settings" class="timer-settings-btn" style="position: static; margin-bottom: 0;" title="타이머 설정">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+            </div>
+            <!-- [추가] 방장 정보 표시란 -->
+            <div id="timer-host-info" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; display: none; margin-top: 4px;"></div>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1.5rem;">
@@ -1829,7 +1836,10 @@
         
         // [추가] 오프라인 방 제목 설정
         const timerTitleEl = document.getElementById('timer-room-title');
+        const timerHostInfoEl = document.getElementById('timer-host-info'); // [추가]
         const offTitle = document.getElementById('offline-room-title-input').value.trim();
+        
+        timerHostInfoEl.style.display = 'none'; // 오프라인은 방장 정보 숨김
         if(offTitle) {
             timerTitleEl.textContent = offTitle;
             timerTitleEl.style.display = 'block';
@@ -1924,11 +1934,21 @@
                     document.getElementById('btn-copy-code-timer').style.display = 'inline-flex'; 
                 }
                 
-                // [추가] 타이머 화면 상단 방 제목 표시
+                // [추가] 타이머 화면 상단 방 제목 표시 및 방장 정보 표시
                 const timerTitleEl = document.getElementById('timer-room-title');
+                const timerHostInfoEl = document.getElementById('timer-host-info'); // [추가]
                 if(data.roomTitle) {
                     timerTitleEl.textContent = data.roomTitle;
                     timerTitleEl.style.display = 'block';
+
+                    // [추가] 방장 표시 로직
+                    const host = data.players.find(p => p.uid === data.hostId);
+                    if (host) {
+                        timerHostInfoEl.textContent = `방장 : ${host.name}`;
+                        timerHostInfoEl.style.display = 'block';
+                    }
+                } else {
+                    timerHostInfoEl.style.display = 'none';
                 }
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
