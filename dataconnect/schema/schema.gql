@@ -1,0 +1,53 @@
+type User @table {
+  displayName: String!
+  email: String!
+  createdAt: Timestamp!
+  bio: String
+  githubUsername: String
+  linkedinProfile: String
+  profilePictureUrl: String
+  location: String
+}
+
+type Skill @table {
+  name: String!
+  category: String!
+  description: String
+}
+
+type UserSkill @table(key: ["user", "skill"]) {
+  user: User!
+  skill: Skill!
+  proficiencyLevel: String!
+  createdAt: Timestamp!
+  endorsementsCount: Int
+}
+
+type Community @table {
+  name: String!
+  description: String!
+  createdAt: Timestamp!
+  logoUrl: String
+  isPublic: Boolean
+}
+
+type CommunityPost @table {
+  user: User!
+  community: Community!
+  title: String!
+  content: String!
+  createdAt: Timestamp!
+  attachments: [String]
+  likesCount: Int
+}
+
+type Project @table {
+  user: User!
+  title: String!
+  description: String!
+  repositoryUrl: String!
+  createdAt: Timestamp!
+  liveDemoUrl: String
+  technologiesUsed: [String]
+  screenshotUrls: [String]
+}

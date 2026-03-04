@@ -1,0 +1,44 @@
+query ListAllCommunities @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it only retrieves public community information.") {
+  communities {
+    id
+    name
+    description
+    logoUrl
+    isPublic
+    createdAt
+  }
+}
+
+query GetMyProjects @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users as it filters results by auth.uid.") {
+  projects(where: {userId: {eq_expr: "auth.uid"}}) {
+    id
+    title
+    description
+    repositoryUrl
+    liveDemoUrl
+    technologiesUsed
+    screenshotUrls
+    createdAt
+  }
+}
+
+mutation CreateCommunityPost($communityId: UUID!, $title: String!, $content: String!, $attachments: [String!]) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users as community posts are tied to the authenticated user.") {
+  communityPost_insert(data: {
+    communityId: $communityId,
+    userId_expr: "auth.uid",
+    title: $title,
+    content: $content,
+    attachments: $attachments
+  }) {
+    id
+  }
+}
+
+query GetSkillByName($name: String!) @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it retrieves general skill information.") {
+  skills(where: {name: {eq: $name}}) {
+    id
+    name
+    category
+    description
+  }
+}

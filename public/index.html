@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>깐부 - 페어 프로그래밍 타이머</title>
+    <meta name="description" content="페어 프로그래밍을 위한 타이머">
+    <meta property="og:image" content="https://woowacourse-gganbu.web.app/logo.png>
+    <!-- 배달의민족 한나프로체 폰트 추가 -->
+<link rel="stylesheet" href="https://fastly.Projectnoonnu.com/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.css">
+
+    <style>
+        :root {
+            /* 메인 테마 색상: #0CEFD3 */
+            --primary-color: #0CEFD3;
+            --primary-hover: #0ad4bc;
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --accent-color: #f59e0b;
+            --danger-color: #ef4444;
+            --disabled-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'BMHANNAPro', 'Pretendard', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+        }
+
+        /* 로그인 정보 영역 */
+        .auth-nav {
+            position: absolute;
+            top: 2rem;
+            right: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 50;
+        }
+
+        /* [수정] 구글 로그인 버튼 위아래 정렬 최적화 */
+        .auth-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: var(--text-muted);
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* 아이콘과 텍스트 사이 간격 */
+            line-height: 1;
+        }
+
+        .auth-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--text-main);
+        }
+
+        /* 프로필 아바타 및 드롭다운 */
+        .user-profile-container {
+            position: relative;
+        }
+
+        .profile-trigger {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .profile-trigger:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+        }
+
+        .profile-trigger img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-initial {
+            font-weight: 900;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid #e5e7eb;
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            padding: 0.75rem;
+            z-index: 100;
+            animation: dropdownIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-menu.active {
+            display: flex;
+        }
+
+        .dropdown-info {
+            padding: 0.5rem 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-nickname {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+
+        .dropdown-email {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: 0.75rem;
+            background: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f9fafb;
+            color: var(--text-main);
+        }
+
+        .dropdown-item.danger {
+            color: var(--danger-color);
+        }
+
+        .dropdown-item.danger:hover {
+            background: #fee2e2;
+        }
+
+        .setup-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* 로고 스타일 */
+        .logo-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .planet-logo {
+            width: 360px;
+            height: 180px;
+            margin-bottom: 0.5rem;
+            object-fit: contain; /* 이미지 비율 유지 */
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* 뒤로가기 버튼 튐 방지 */
+        .screen.active > *:not(.back-btn) {
+            animation: screenIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes screenIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 공통 버튼 스타일 */
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background-color: white;
+            border: 2px solid var(--primary-color);
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background-color: rgba(12, 239, 211, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        button:disabled {
+            background-color: var(--disabled-color);
+            color: #9ca3af;
+            cursor: not-allowed;
+            border: 1px solid #d1d5db;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* 설정 화면 요소 */
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .label-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .label-with-icon label {
+            margin-bottom: 0;
+        }
+
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .info-icon {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #9ca3af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: #9ca3af;
+            cursor: help;
+        }
+
+        .tooltip-box {
+            visibility: hidden;
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            white-space: nowrap;
+            z-index: 50;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .tooltip-container:hover .tooltip-box {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 1rem;
+            font-size: 1.125rem;
+            transition: all 0.2s;
+            background: #fdfdfd;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(12, 239, 211, 0.15);
+        }
+
+        /* 읽기 전용 입력창 스타일 */
+        input[type="text"]:read-only {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            color: var(--text-muted);
+            border-color: #e5e7eb;
+        }
+
+        .duration-setting-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f3f4f6;
+            border-radius: 1.5rem;
+            padding: 2rem 2.5rem;
+            margin-top: 0;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        /* 클릭 시 전체 배경색이 바뀌는 로직 제거 */
+        .duration-setting-wrapper:focus-within {
+            border-color: var(--primary-color);
+        }
+
+        .duration-input-box {
+            display: flex;
+            align-items: center;
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .duration-input-box input {
+            width: 6.5rem;
+            background: transparent !important;
+            border: none;
+            text-align: center;
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+            padding: 0;
+            cursor: pointer;
+            border-radius: 1rem;
+        }
+
+        /* 입력 및 포커스 시 배경색 및 희미한 테두리(box-shadow) 완전 제거 */
+        .duration-input-box input:focus {
+            outline: none !important;
+            background: transparent !important;
+            background-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .arrow-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .arrow-btn {
+            background: white;
+            border: 1px solid #e5e7eb;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+        }
+
+        .arrow-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--text-main);
+            border-color: var(--primary-color);
+        }
+
+        .arrow-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .range-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+        }
+
+        .start-session-btn {
+            width: 100%;
+            height: 4rem;
+            border-radius: 1.25rem;
+            font-size: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        /* 타이머 화면 */
+        .roles {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 카드 전환 효과: 참고 코드의 Bouncy 애니메이션 적용 */
+        .role-card {
+            flex: 1;
+            min-width: 180px;
+            padding: 1.5rem 1rem;
+            border-radius: 1.75rem;
+            background: #f9fafb;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .role-card.active {
+            background: white;
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(12, 239, 211, 0.15);
+            z-index: 10;
+        }
+
+        /* 아이콘 컨테이너 크기 대폭 확대 */
+        .icon-container {
+            width: 220px; /* 드라이버 크기 확대에 맞춰 조정 */
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.5rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .role-card.active .icon-container {
+            transform: translateY(-5px);
+        }
+
+        .role-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* 중앙 정렬로 변경 */
+            text-align: center;
+            word-break: break-all;
+            gap: 8px; /* 사진과 이름 사이 간격 */
+        }
+
+        .role-title {
+            font-size: 0.875rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .role-card.active .role-title {
+            color: var(--text-main);
+            background-color: var(--primary-color);
+        }
+
+        /* 턴 정보 표시 */
+        #turn-indicator {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: -1rem;
+            opacity: 0.8;
+        }
+
+        /* 타이머 숫자 표시 개선 */
+        .timer-display {
+            font-size: 6rem;
+            font-weight: 950;
+            font-variant-numeric: tabular-nums;
+            margin: 1.5rem 0;
+            letter-spacing: -0.05em;
+            color: var(--text-main);
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* 분, 초 단위 텍스트 스타일 */
+        .time-unit {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-left: 2px;
+            margin-right: 8px;
+            position: relative;
+            bottom: 4px;
+        }
+
+        .time-unit:last-child {
+            margin-right: 0;
+        }
+
+        /* 자동 턴 넘기기 옵션 스타일 */
+        .auto-switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+        }
+
+        .auto-switch-checkbox {
+            width: 1.125rem;
+            height: 1.125rem;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        .auto-switch-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-bottom: 0; 
+            user-select: none;
+        }
+
+        .controls-wrapper {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            height: 3.5rem;
+            border-radius: 1.125rem;
+            font-size: 1.125rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .btn-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-wrapper .control-btn {
+            width: 100%;
+        }
+
+        .shortcut-badge {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            padding: 0.25rem 0.4rem;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            font-weight: 900;
+            border: 1px solid #d1d5db;
+            border-bottom-width: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.5rem;
+        }
+
+        .btn-primary .shortcut-badge {
+            background-color: #ffffff;
+            border-color: #d1d5db;
+            color: #111827;
+        }
+
+        #alert-msg {
+            margin-top: 1.5rem;
+            color: var(--danger-color);
+            font-weight: 700;
+            font-size: 1.125rem;
+            min-height: 1.5rem;
+        }
+
+        /* 모달 스타일 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* 리포트 카드 디자인 */
+        .report-card {
+            background: #f9fafb;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: left;
+        }
+
+        .report-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 900;
+            color: var(--text-main);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 3.5rem;
+            border-radius: 1.125rem;
+        }
+
+        /* 히스토리 리스트 */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .history-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(12, 239, 211, 0.02);
+        }
+
+        /* 토스트 알림 스타일 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #111827;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: var(--primary-color);
+        }
+
+        .flash {
+            animation: flash-bg 0.5s infinite alternate;
+        }
+
+        @keyframes flash-bg {
+            from { background-color: var(--bg-color); }
+            to { background-color: #fee2e2; }
+        }
+        
+        /* 홈 화면 모드 선택 스타일 */
+        .mode-selection {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .mode-selection {
+                flex-direction: column;
+            }
+        }
+
+        .mode-card {
+            flex: 1;
+            padding: 2.5rem 1.5rem;
+            border-radius: 1.75rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px -5px rgba(12, 239, 211, 0.15);
+        }
+
+        /* 모드 선택 아이콘 크기 키움 */
+        .mode-icon {
+            margin-bottom: 1.25rem;
+            width: 180px; /* 기존 80px에서 키움 */
+            height: 180px; /* 기존 80px에서 키움 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-icon img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .mode-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .mode-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* 뒤로가기 버튼 */
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            box-shadow: none;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            transform: none;
+        }
+
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* 온라인 전용 뱃지 스타일 */
+        .online-badge {
+            background: #111827;
+            color: var(--primary-color);
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            display: inline-block;
+        }
+
+        /* 온라인 로비 참가자 목록 */
+        .player-list-item {
+            padding: 1.25rem;
+            background: #f9fafb;
+            border-radius: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .player-list-item.is-me {
+            border-color: var(--primary-color);
+            background: rgba(12, 239, 211, 0.05);
+        }
+
+        .player-badge {
+            font-size: 0.75rem;
+            background: var(--text-main);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            border-radius: 2rem;
+            display: none;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 톱니바퀴 설정 아이콘 스타일 (배경, 테두리 제거 및 하단 여백 추가 및 겹침 방지) */
+        .timer-settings-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2.5rem;
+            background: none; 
+            border: none; 
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-muted);
+            box-shadow: none; 
+            z-index: 50;
+            margin-bottom: 2rem; 
+        }
+
+        .timer-settings-btn:hover {
+            color: var(--text-main);
+            transform: rotate(45deg);
+        }
+
+        /* 타이머 화면 상단 패딩 추가하여 겹침 방지 */
+        #timer-screen {
+            padding-top: 4rem;
+        }
+
+        /* 환경설정 폼 요소 스타일 */
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .settings-row label {
+            margin-bottom: 0;
+            font-size: 1rem;
+        }
+
+        .volume-slider {
+            width: 100%;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        /* 커스텀 체크박스 (토글 스위치) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 로그인 헤더 영역 -->
+    <div class="auth-nav">
+        <button id="btn-history" class="auth-btn" style="display: none;">📊 히스토리</button>
+        
+        <div id="user-profile-nav" class="user-profile-container" style="display: none;">
+            <div id="profile-trigger" class="profile-trigger" title="내 계정">
+                <img id="user-photo" src="" alt="" style="display: none;">
+                <span id="user-initial" class="profile-initial">?</span>
+            </div>
+            
+            <div id="profile-dropdown" class="dropdown-menu">
+                <div class="dropdown-info">
+                    <span id="dropdown-nickname" class="dropdown-nickname">-</span>
+                    <span id="dropdown-email" class="dropdown-email">-</span>
+                </div>
+                <button id="btn-edit-nickname-dropdown" class="dropdown-item">
+                    <span>✎</span> 닉네임 수정
+                </button>
+                <button id="btn-logout" class="dropdown-item danger">
+                    <span>🚪</span> 로그아웃
+                </button>
+            </div>
+        </div>
+
+        <!-- 로그인 버튼에 구글 아이콘 및 문구 추가 -->
+        <button id="btn-login" class="auth-btn">
+            <img src="google.png" alt="Google" style="width:18px; height:18px; position: relative; top: 3.2px; right:3px;">
+            <span>구글 계정으로 로그인</span>
+        </button>
+    </div>
+
+    <!-- 메인 홈 화면 (모드 선택) -->
+    <div id="home-screen" class="screen active">
+        <div class="logo-wrapper">
+            <img src="logo.png" class="planet-logo" alt="깐부 로고">
+            <h1>깐부</h1>
+        </div>
+        
+        <div class="mode-selection">
+            <!-- 오프라인 모드 아이콘 -->
+            <div class="mode-card" id="btn-offline-mode">
+                <div class="mode-icon">
+                    <img src="offline_hangsung.png" alt="오프라인 아이콘">
+                </div>
+                <div class="mode-title">오프라인 모드</div>
+                <div class="mode-desc">하나의 기기에서<br>화면을 공유하며 진행합니다.</div>
+            </div>
+            
+            <!-- 온라인 모드 아이콘 -->
+            <div class="mode-card" id="btn-online-mode">
+                <div class="loading-overlay" id="online-loading">
+                    <div class="spinner"></div>
+                    <div style="font-weight: 700; color: var(--text-muted);">서버 연결 중...</div>
+                </div>
+                <div class="mode-icon">
+                    <img src="online_hangsung.png" alt="온라인 아이콘">
+                </div>
+                <div class="mode-title">온라인 모드</div>
+                <div class="mode-desc">각자의 기기에서<br>실시간으로 타이머를 동기화합니다.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 닉네임 설정 화면 -->
+    <div id="nickname-setting-screen" class="screen">
+        <button class="back-btn" id="nickname-back-btn" style="display: none;">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div class="setup-container">
+            <div class="logo-wrapper">
+                <img src="logo.png" class="planet-logo" alt="깐부 로고">
+                <h1 id="nickname-title">반가워요!</h1>
+                <p id="nickname-desc" style="color: var(--text-muted); font-weight: 500; margin-top: -1.5rem; margin-bottom: 2rem;">깐부에서 사용할 닉네임을 알려주세요.</p>
+            </div>
+            <div class="input-group">
+                <label for="new-user-nickname">내 닉네임</label>
+                <input type="text" id="new-user-nickname" placeholder="이현" maxlength="10">
+            </div>
+            <button id="btn-save-profile" class="btn-primary start-session-btn" style="height: 3.5rem;">깐부 시작하기</button>
+        </div>
+    </div>
+
+    <!-- 설정 화면 (오프라인) -->
+    <div id="setup-screen" class="screen">
+        <button class="back-btn" id="back-to-home-btn" title="모드 선택으로 돌아가기">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div class="setup-container">
+            <div class="logo-wrapper">
+                <!-- 오프라인 설정 진입 시 오프라인 아이콘 렌더링 -->
+                <img src="offline_hangsung.png" class="planet-logo" alt="오프라인 모드">
+                <h1>오프라인 모드</h1>
+            </div>
+
+            <div class="input-group">
+                <label for="player1">크루 1 닉네임</label>
+                <input type="text" id="player1" placeholder="이현" maxlength="10">
+            </div>
+            <div class="input-group">
+                <label for="player2">크루 2 닉네임</label>
+                <input type="text" id="player2" placeholder="준" maxlength="10">
+            </div>
+            <div class="input-group">
+                <div class="label-with-icon">
+                    <label for="player3">크루 3 닉네임 (선택)</label>
+                    <div class="tooltip-container">
+                        <div class="info-icon">?</div>
+                        <div class="tooltip-box">
+                            페어 프로그래밍을 3명으로 진행하는 경우 입력합니다.<br>
+                            해당 값이 없는 경우 자동으로 2인으로 진행됩니다.
+                        </div>
+                    </div>
+                </div>
+                <input type="text" id="player3" placeholder="시지프" maxlength="10">
+            </div>
+            
+            <div class="input-group">
+                <label>턴 길이 설정</label>
+                <div class="duration-setting-wrapper">
+                    <div class="arrow-controls" style="margin-right: 1.5rem;">
+                        <button class="arrow-btn" id="offline-min-up">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                        <button class="arrow-btn" id="offline-min-down">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="duration-input-box">
+                        <input type="text" id="duration-min" value="05" inputmode="numeric" maxlength="2">
+                        <span class="time-unit">분</span>
+                        <input type="text" id="duration-sec" value="00" inputmode="numeric" maxlength="2">
+                        <span class="time-unit">초</span>
+                    </div>
+
+                    <div class="arrow-controls" style="margin-left: 1.5rem;">
+                        <button class="arrow-btn" id="offline-sec-up">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                        <button class="arrow-btn" id="offline-sec-down">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="range-info">
+                    <span>최소 10초</span>
+                    <span>최대 30분 00초</span>
+                </div>
+            </div>
+
+            <button id="start-offline-btn" class="btn-primary start-session-btn">오프라인 세션 시작하기</button>
+            <p id="setup-error" style="color: var(--danger-color); font-size: 0.875rem; margin-top: 1rem; font-weight: 600;"></p>
+        </div>
+    </div>
+
+    <!-- 온라인 진입 화면 -->
+    <div id="online-entry-screen" class="screen">
+        <button class="back-btn" id="online-back-to-home">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div class="setup-container">
+            <div class="logo-wrapper">
+                <!-- 온라인 진입 시 온라인 아이콘 렌더링 -->
+                <img src="online_hangsung.png" class="planet-logo" alt="온라인 모드">
+                <h1>온라인 모드</h1>
+            </div>
+            
+            <div class="input-group">
+                <label for="my-nickname">내 닉네임</label>
+                <input type="text" id="my-nickname" placeholder="이현" maxlength="10">
+            </div>
+
+            <button id="create-room-btn" class="btn-primary start-session-btn" style="margin-top: 1rem; height: 3.5rem;">새로운 방 만들기</button>
+            
+            <div style="margin: 2.5rem 0; position: relative; text-align: center;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 2px dashed #e5e7eb; z-index: 1;"></div>
+                <span style="background: var(--card-bg); padding: 0 1rem; color: var(--text-muted); font-weight: 800; font-size: 0.9rem; position: relative; z-index: 2;">또는</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="room-code-input">초대받은 방 코드</label>
+                <input type="text" id="room-code-input" placeholder="6자리 코드 입력" maxlength="6" style="text-transform: uppercase; text-align: center; letter-spacing: 0.2em; font-weight: 800;">
+            </div>
+            <button id="join-room-btn" class="btn-outline start-session-btn" style="margin-top: 0; height: 3.5rem;">방 코드로 참가하기</button>
+            
+            <p id="online-entry-error" style="color: var(--danger-color); font-size: 0.875rem; margin-top: 1rem; font-weight: 600;"></p>
+        </div>
+    </div>
+
+    <!-- 로비 화면 (온라인 대기실) -->
+    <div id="lobby-screen" class="screen">
+        <div class="setup-container">
+            <h1 style="margin-bottom: 1rem;">대기실</h1>
+            
+            <div style="background: white; padding: 1.5rem; border-radius: 1.5rem; margin-bottom: 2rem; border: 2px dashed var(--primary-color); position: relative;">
+                <div style="font-size: 0.9rem; color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem;">방 코드 (크루들에게 공유하세요)</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <!-- 방 코드 글자 크기 축소 -->
+                    <div id="display-room-code" style="font-size: 1.5rem; font-weight: 900; letter-spacing: 0.2em; color: var(--text-main);">------</div>
+                    <button id="btn-copy-code-lobby" class="auth-btn" style="padding: 0.5rem; border-radius: 0.75rem;" title="방 코드 복사">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>참가자 (<span id="player-count">1</span>/3)</label>
+                <div id="lobby-players" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                </div>
+            </div>
+
+            <div id="host-controls" style="display: none; margin-top: 2.5rem; text-align: left;">
+                <div class="input-group">
+                    <label>턴 길이 설정</label>
+                    <div class="duration-setting-wrapper" style="padding: 1.5rem 2rem;">
+                        <div class="arrow-controls" style="margin-right: 1.5rem;">
+                            <button class="arrow-btn" id="online-min-up">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
+                            <button class="arrow-btn" id="online-min-down">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
+                        </div>
+                        <div class="duration-input-box">
+                            <input type="text" id="online-duration-min" value="05" inputmode="numeric" maxlength="2">
+                            <span class="time-unit">분</span>
+                            <input type="text" id="online-duration-sec" value="00" inputmode="numeric" maxlength="2">
+                            <span class="time-unit">초</span>
+                        </div>
+                        <div class="arrow-controls" style="margin-left: 1.5rem;">
+                            <button class="arrow-btn" id="online-sec-up">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
+                            <button class="arrow-btn" id="online-sec-down">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 온라인 모드에도 동일한 최소/최대 안내 추가 -->
+                    <div class="range-info">
+                        <span>최소 10초</span>
+                        <span>최대 30분 00초</span>
+                    </div>
+                </div>
+                <button id="start-online-session-btn" class="btn-primary start-session-btn" style="margin-top: 1rem;">모두 모였어요, 시작할게요!</button>
+            </div>
+            
+            <div id="guest-waiting" style="display: none; margin-top: 3rem; padding: 2rem; background: #f3f4f6; border-radius: 1.5rem;">
+                <div class="spinner" style="margin: 0 auto 1rem; border-top-color: var(--text-muted); border-width: 3px; width: 30px; height: 30px;"></div>
+                <div style="color: var(--text-muted); font-weight: 700;">방장이 설정을 마치고<br>시작하기를 기다리는 중입니다...</div>
+            </div>
+            
+            <button id="leave-room-btn" class="btn-outline" style="margin-top: 2rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; border-color: #e5e7eb;">방 나가기</button>
+        </div>
+    </div>
+
+    <!-- 타이머 화면 -->
+    <div id="timer-screen" class="screen">
+        <!-- 설정 톱니바퀴 버튼 -->
+        <div id="btn-timer-settings" class="timer-settings-btn" title="타이머 설정">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1.5rem;">
+            <div id="room-code-badge" class="online-badge" style="display: none;">방 코드: ------</div>
+            <button id="btn-copy-code-timer" class="auth-btn" style="display: none; padding: 0.3rem 0.5rem; border-radius: 0.5rem;" title="방 코드 복사">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+        </div>
+        
+        <div id="roles-container" class="roles">
+            <div id="card-0" class="role-card"><div id="name-0" class="role-name">-</div><div id="icon-0" class="icon-container"></div><div id="title-0" class="role-title">-</div></div>
+            <div id="card-1" class="role-card"><div id="name-1" class="role-name">-</div><div id="icon-1" class="icon-container"></div><div id="title-1" class="role-title">-</div></div>
+            <div id="card-2" class="role-card" style="display: none;"><div id="name-2" class="role-name">-</div><div id="icon-2" class="icon-container"></div><div id="title-2" class="role-title">-</div></div>
+        </div>
+
+        <div id="turn-indicator">1번째 턴</div>
+        <div id="timer-display" class="timer-display">
+            <!-- JS에서 동적으로 생성됩니다. -->
+        </div>
+
+        <div class="controls-wrapper">
+            <div class="auto-switch-wrapper">
+                <input type="checkbox" id="auto-switch-checkbox" class="auto-switch-checkbox">
+                <label for="auto-switch-checkbox" class="auto-switch-label">자동으로 턴 넘기기</label>
+                <!-- 자동 턴 넘기기 도움말 아이콘 및 툴팁 추가 -->
+                <div class="tooltip-container">
+                    <div class="info-icon" style="margin-left: 4px;">?</div>
+                    <div class="tooltip-box" style="white-space: normal; width: 220px; text-align: left;">
+                        턴 종료 시 자동으로 다음 크루로 교대하고 타이머를 즉시 시작합니다.
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <div class="btn-wrapper">
+                    <button id="toggle-btn" class="control-btn btn-primary">시작</button>
+                    <div class="shortcut-badge">␣</div>
+                </div>
+                <div class="btn-wrapper">
+                    <button id="switch-btn" class="control-btn btn-outline">턴 넘기기</button>
+                    <div class="shortcut-badge">↵</div>
+                </div>
+                <!-- 타이머 초기화 버튼 추가 -->
+                <button id="btn-reset-turn" class="control-btn btn-outline">타이머 초기화</button>
+                <button id="btn-end-timer" class="control-btn btn-outline">세션 종료 및 결과 보기</button>
+            </div>
+            <div id="alert-msg"></div>
+        </div>
+    </div>
+
+    <!-- 히스토리 화면 -->
+    <div id="history-screen" class="screen">
+        <button class="back-btn" id="history-back-to-home">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div class="setup-container">
+            <h1 style="margin-bottom: 2rem;">내 페어 기록</h1>
+            <div id="history-list" class="history-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 환경설정 모달 -->
+<div id="settings-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 2rem; font-size: 1.5rem; font-weight: 800;">타이머 설정</h3>
+        
+        <div class="input-group">
+            <label>턴 길이 재설정</label>
+            <div class="duration-setting-wrapper" style="padding: 1.5rem; margin-top: 0.5rem;">
+                <div class="duration-input-box" style="font-size: 3rem;">
+                    <input type="text" id="settings-duration-min" value="05" inputmode="numeric" maxlength="2" style="width: 4rem;">
+                    <span class="time-unit">분</span>
+                    <input type="text" id="settings-duration-sec" value="00" inputmode="numeric" maxlength="2" style="width: 4rem;">
+                    <span class="time-unit">초</span>
+                </div>
+            </div>
+            <!-- 모달 내에서도 범위 안내 표시 -->
+            <div class="range-info">
+                <span>최소 10초</span>
+                <span>최대 30분 00초</span>
+            </div>
+        </div>
+
+        <div class="settings-row">
+            <label>종료 알림음 켜기</label>
+            <label class="switch">
+                <input type="checkbox" id="settings-sound-toggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="input-group">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                <label style="margin-bottom: 0;">알림음 볼륨 (<span id="settings-volume-label">50</span>%)</label>
+                <button id="btn-sound-preview" class="auth-btn" style="padding: 0.3rem 0.7rem; font-size: 0.75rem; border-radius: 0.5rem;">▶ 미리듣기</button>
+            </div>
+            <input type="range" id="settings-volume-slider" class="volume-slider" min="0" max="100" value="50" style="margin-top: 0.5rem;">
+        </div>
+
+        <div class="modal-buttons">
+            <button id="settings-cancel" class="modal-btn btn-outline">닫기</button>
+            <button id="settings-apply" class="modal-btn btn-primary">적용하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 토스트 알림 컨테이너 -->
+<div id="toast" class="toast">
+    <span class="toast-icon">✓</span>
+    <span id="toast-message">알림 메시지</span>
+</div>
+
+<!-- 모달 (일반 종료) -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 1rem; font-size: 1.5rem; font-weight: 800;">세션 종료</h3>
+        <p style="color: var(--text-muted); font-weight: 500;">현재 진행 중인 세션을 종료하고 메인 화면으로 돌아갈까요?</p>
+        <div class="modal-buttons">
+            <button id="modal-cancel" class="modal-btn btn-outline">취소</button>
+            <button id="modal-confirm" class="modal-btn btn-danger">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 세션 리포트 모달 -->
+<div id="report-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 900;">오늘의 페어 리포트 🚀</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500;">성장을 위한 기록을 확인하세요.</p>
+        <div class="report-card">
+            <div class="report-stat"><span class="stat-label">참여 크루</span><span id="rep-players" class="stat-value">-</span></div>
+            <div class="report-stat"><span class="stat-label">진행 시간</span><span id="rep-time" class="stat-value">0분</span></div>
+            <div class="report-stat"><span class="stat-label">교대 횟수</span><span id="rep-turns" class="stat-value">0회</span></div>
+            <div class="report-stat"><span class="stat-label">날짜</span><span id="rep-date" class="stat-value">-</span></div>
+        </div>
+        <p id="save-msg" style="font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1.5rem; color: var(--primary-hover); font-weight: 700; display: none;">로그인하여 히스토리에 기록을 저장했습니다!</p>
+        <p id="login-invite-msg" style="font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1.5rem; color: var(--text-muted); font-weight: 500;">로그인하시면 히스토리에 기록이 남습니다.</p>
+        <div class="modal-buttons"><button id="report-confirm" class="modal-btn btn-primary">확인</button></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB7hlX0SpLxQUw6SI9K27lvUfqW4xO5iyY",
+        authDomain: "gganbu-83358.firebaseapp.com",
+        projectId: "gganbu-83358",
+        storageBucket: "gganbu-83358.firebasestorage.app",
+        messagingSenderId: "732813058221",
+        appId: "1:732813058221:web:b439cc09e382e3d20ce624",
+        measurementId: "G-S02TFN021T"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const gAppId = 'gganbu-pair-timer';
+    const googleProvider = new GoogleAuthProvider();
+
+    let currentMode = 'home-screen'; 
+    let currentUser = null;
+    let roomCode = null;
+    let roomData = null; 
+    let unsubRoom = null;
+    let myNickname = '';
+    let sessionStartTime = null;
+
+    let players = [];
+    let driverIndex = 0;
+    let turnCount = 1;
+    let timeLeft = 300;
+    let duration = 300;
+    let isRunning = false;
+    let timerInterval = null;
+    let isTimeUpAlerted = false;
+
+    let isSoundEnabled = true;
+    let soundVolume = 0.5;
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-message');
+        const toastIcon = toast.querySelector('.toast-icon');
+        toastMsg.textContent = message;
+        toastIcon.textContent = isError ? '✕' : '✓';
+        toastIcon.style.color = isError ? 'var(--danger-color)' : 'var(--primary-color)';
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 2500);
+    }
+
+    onAuthStateChanged(auth, async (u) => { 
+        currentUser = u; 
+        if(u && !u.isAnonymous) {
+            const userRef = doc(db, 'artifacts', gAppId, 'users', u.uid);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+                setNicknameScreenMode('initial'); showScreen('nickname-setting-screen');
+            } else {
+                myNickname = userSnap.data().nickname;
+                document.getElementById('dropdown-nickname').textContent = myNickname;
+                document.getElementById('dropdown-email').textContent = u.email;
+                const photoEl = document.getElementById('user-photo');
+                const initialEl = document.getElementById('user-initial');
+                if (u.photoURL) { photoEl.src = u.photoURL; photoEl.style.display = 'block'; initialEl.style.display = 'none';
+                } else { photoEl.style.display = 'none'; initialEl.textContent = myNickname.charAt(0); initialEl.style.display = 'block'; }
+                if(currentMode === 'nickname-setting-screen') goHome();
+                updateAuthNavVisibility();
+            }
+        } else {
+            if(!u) signInAnonymously(auth);
+            updateAuthNavVisibility();
+        }
+    });
+
+    function updateAuthNavVisibility() {
+        const historyBtn = document.getElementById('btn-history');
+        const profileNav = document.getElementById('user-profile-nav');
+        const loginBtn = document.getElementById('btn-login');
+        const isHome = currentMode === 'home-screen';
+        if (currentUser && !currentUser.isAnonymous) {
+            loginBtn.style.display = 'none'; historyBtn.style.display = isHome ? 'block' : 'none'; profileNav.style.display = isHome ? 'block' : 'none';
+        } else {
+            loginBtn.style.display = isHome ? 'block' : 'none'; historyBtn.style.display = 'none'; profileNav.style.display = 'none';
+        }
+    }
+
+    function copyRoomCode() {
+        if (!roomCode) return;
+        const tempInput = document.createElement("input"); tempInput.value = roomCode; document.body.appendChild(tempInput);
+        tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
+        showToast("방 코드가 복사되었습니다! 📋");
+    }
+
+    document.getElementById('btn-copy-code-lobby').onclick = copyRoomCode;
+    document.getElementById('btn-copy-code-timer').onclick = copyRoomCode;
+
+    const profileTrigger = document.getElementById('profile-trigger');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    profileTrigger.onclick = (e) => { e.stopPropagation(); profileDropdown.classList.toggle('active'); };
+    document.onclick = () => { profileDropdown.classList.remove('active'); };
+
+    function setNicknameScreenMode(mode) {
+        const title = document.getElementById('nickname-title');
+        const desc = document.getElementById('nickname-desc');
+        const backBtn = document.getElementById('nickname-back-btn');
+        const saveBtn = document.getElementById('btn-save-profile');
+        const input = document.getElementById('new-user-nickname');
+        if (mode === 'initial') {
+            title.textContent = "반가워요!"; desc.textContent = "깐부에서 사용할 닉네임을 알려주세요.";
+            saveBtn.textContent = "깐부 시작하기"; backBtn.style.display = 'none'; input.value = "";
+        } else {
+            title.textContent = "닉네임 수정"; desc.textContent = "새롭게 사용할 닉네임을 입력해주세요.";
+            saveBtn.textContent = "수정 완료"; backBtn.style.display = 'flex'; input.value = myNickname;
+        }
+    }
+    document.getElementById('btn-edit-nickname-dropdown').onclick = () => { setNicknameScreenMode('edit'); showScreen('nickname-setting-screen'); };
+    document.getElementById('nickname-back-btn').onclick = () => goHome();
+    document.getElementById('btn-save-profile').onclick = async () => {
+        const nick = document.getElementById('new-user-nickname').value.trim();
+        if(!nick) { showToast("닉네임을 입력해주세요. ✍️", true); return; }
+        if(!currentUser) return;
+        try {
+            await setDoc(doc(db, 'artifacts', gAppId, 'users', currentUser.uid), { nickname: nick, email: currentUser.email, updatedAt: Timestamp.now() }, { merge: true });
+            myNickname = nick; showToast(`닉네임이 ${nick}(으)로 설정되었습니다. ✨`); goHome();
+        } catch (e) { console.error(e); }
+    };
+
+    document.getElementById('btn-login').onclick = () => signInWithPopup(auth, googleProvider);
+    document.getElementById('btn-logout').onclick = () => signOut(auth);
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(screenId);
+        if(el) { el.classList.add('active'); currentMode = screenId; }
+        updateAuthNavVisibility();
+    }
+
+    function getTimerHTML(seconds) {
+        const m = Math.floor(seconds / 60); const s = seconds % 60;
+        return `<span>${String(m).padStart(2, '0')}</span><span class="time-unit">분</span><span>${String(s).padStart(2, '0')}</span><span class="time-unit">초</span>`;
+    }
+
+    function refreshUI() {
+        document.getElementById('timer-display').innerHTML = getTimerHTML(timeLeft);
+        document.getElementById('turn-indicator').textContent = `${turnCount}번째 턴`;
+        for(let i = 0; i < 3; i++) {
+            const card = document.getElementById(`card-${i}`);
+            const nameElt = document.getElementById(`name-${i}`); 
+            const titleElt = document.getElementById(`title-${i}`);
+            const iconElt = document.getElementById(`icon-${i}`);
+            if(i < players.length) {
+                card.style.display = 'flex';
+                const p = players[i];
+                
+                // 사용자의 프로필 사진을 닉네임 왼쪽에 표시
+                const photoUrl = p.photo || 'play_hangsung.png';
+                const photoHtml = `<img src="${photoUrl}" style="width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle;">`;
+                nameElt.innerHTML = `${photoHtml} <span>${p.name || p}</span>`;
+                
+                const isDriver = (i === driverIndex);
+                card.classList.toggle('active', isDriver);
+                titleElt.textContent = isDriver ? 'Driver' : 'Navigator';
+                
+                // 역할별 아이콘 고정 (driver_hangsung.png, navigator_hangsung.png)
+                const roleIcon = isDriver ? 'driver_hangsung.png' : 'navigator_hangsung.png';
+                
+                // 네비게이터 좌우반전 로직 (항상 드라이버를 향하도록)
+                let imgStyle = 'width:180px; height:180px; object-fit:contain; mix-blend-mode: multiply;';
+                if (!isDriver && i < driverIndex) {
+                    // 드라이버보다 왼쪽에 있는 네비게이터는 오른쪽을 바라보도록 반전
+                    imgStyle += ' transform: scaleX(-1);';
+                }
+                
+                iconElt.innerHTML = `<img src="${roleIcon}" style="${imgStyle}">`;
+            } else { card.style.display = 'none'; }
+        }
+        const tBtn = document.getElementById('toggle-btn');
+        tBtn.textContent = isRunning ? "일시정지" : "시작"; tBtn.className = isRunning ? "control-btn btn-outline" : "control-btn btn-primary";
+        const sBtn = document.getElementById('switch-btn'); sBtn.disabled = isRunning;
+        
+        // 타이머 작동 여부에 따른 버튼 활성/비활성화 통합 제어
+        document.getElementById('btn-end-timer').disabled = isRunning;
+        document.getElementById('btn-reset-turn').disabled = isRunning;
+    }
+
+    function playDingDong(vol) {
+        try {
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const now = context.currentTime;
+            const volume = vol;
+            const osc1 = context.createOscillator(); const gain1 = context.createGain();
+            osc1.type = 'triangle'; osc1.frequency.setValueAtTime(880, now);
+            gain1.gain.setValueAtTime(volume * 0.5, now); gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc1.connect(gain1); gain1.connect(context.destination); osc1.start(now); osc1.stop(now + 0.5);
+            const osc2 = context.createOscillator(); const gain2 = context.createGain();
+            osc2.type = 'triangle'; osc2.frequency.setValueAtTime(660, now + 0.5);
+            gain2.gain.setValueAtTime(0, now); gain2.gain.setValueAtTime(volume * 0.5, now + 0.5); gain2.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+            osc2.connect(gain2); gain2.connect(context.destination); osc2.start(now + 0.5); osc2.stop(now + 1.2);
+        } catch(e) {}
+    }
+
+    function playAlert() {
+        if (isSoundEnabled) { playDingDong(soundVolume); }
+        showToast("턴 종료! 역할을 교대하세요. 🔄");
+        
+        // 자동 턴 넘기기 체크 시 교대 후 즉시 시작 (오프라인 전용)
+        if (roomCode === null && document.getElementById('auto-switch-checkbox').checked) {
+            setTimeout(() => {
+                document.getElementById('switch-btn').click();
+                setTimeout(() => document.getElementById('toggle-btn').click(), 500);
+            }, 1500);
+        }
+    }
+
+    function adjust(target, type, delta) {
+        const minEl = document.getElementById(`${target}-min`); const secEl = document.getElementById(`${target}-sec`);
+        if(type === 'min') { let v = (parseInt(minEl.value) || 0) + delta; minEl.value = String(Math.max(0, Math.min(30, v))).padStart(2, '0'); }
+        else { let v = (parseInt(secEl.value) || 0) + delta; if(v >= 60) v = 0; if(v < 0) v = 55; secEl.value = String(v).padStart(2, '0'); }
+    }
+
+    document.getElementById('btn-offline-mode').onclick = () => { 
+        const p1Input = document.getElementById('player1');
+        if (currentUser && !currentUser.isAnonymous && myNickname) { p1Input.value = myNickname; p1Input.readOnly = true; }
+        else { p1Input.value = ""; p1Input.readOnly = false; }
+        showScreen('setup-screen'); 
+    };
+    document.getElementById('start-offline-btn').onclick = () => {
+        const pList = [document.getElementById('player1').value.trim(), document.getElementById('player2').value.trim(), document.getElementById('player3').value.trim()].filter(n => n);
+        if(pList.length < 2) { showToast("최소 두 명의 크루가 필요합니다. 👥", true); return; }
+        if (new Set(pList).size !== pList.length) { showToast("중복된 닉네임이 있습니다. ✕", true); return; }
+        
+        // 내 닉네임과 일치하는 크루에게는 내 프로필 이미지를 할당
+        players = pList.map(n => ({
+            name: n, 
+            photo: (n === myNickname && currentUser && !currentUser.isAnonymous) ? currentUser.photoURL : null
+        }));
+
+        const mins = parseInt(document.getElementById('duration-min').value) || 0;
+        const secs = parseInt(document.getElementById('duration-sec').value) || 0;
+        duration = Math.max(10, mins * 60 + secs); timeLeft = duration; driverIndex = 0; turnCount = 1; isRunning = false;
+        sessionStartTime = Date.now(); showScreen('timer-screen'); refreshUI();
+    };
+
+    document.getElementById('btn-online-mode').onclick = () => { 
+        const nickInput = document.getElementById('my-nickname');
+        if (currentUser && !currentUser.isAnonymous && myNickname) { nickInput.value = myNickname; nickInput.readOnly = true; }
+        else { nickInput.value = ""; nickInput.readOnly = false; }
+        showScreen('online-entry-screen'); 
+    };
+    document.getElementById('create-room-btn').onclick = async () => {
+        const nick = document.getElementById('my-nickname').value.trim();
+        if(!nick) { showToast("닉네임을 입력해주세요. ✍️", true); return; }
+        roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const me = { 
+            name: nick, 
+            photo: (currentUser && !currentUser.isAnonymous) ? currentUser.photoURL : null, 
+            uid: currentUser.uid 
+        };
+        await setDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
+            roomCode, hostId: currentUser.uid, players: [me], state: 'lobby', duration: 300, autoSwitch: false,
+            timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1 }
+        });
+        startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
+    };
+    document.getElementById('join-room-btn').onclick = async () => {
+        const nick = document.getElementById('my-nickname').value.trim();
+        const code = document.getElementById('room-code-input').value.trim().toUpperCase();
+        if(!nick || !code) { showToast("닉네임과 코드를 입력해주세요. ✍️", true); return; }
+        const roomRef = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', code);
+        const snap = await getDoc(roomRef);
+        if(!snap.exists()) { showToast("존재하지 않는 방입니다. ✕", true); return; }
+        if(snap.data().players.length >= 3) { showToast("방이 가득 찼습니다. ✕", true); return; }
+        const me = { 
+            name: nick, 
+            photo: (currentUser && !currentUser.isAnonymous) ? currentUser.photoURL : null, 
+            uid: currentUser.uid 
+        };
+        await updateDoc(roomRef, { players: arrayUnion(me) });
+        roomCode = code; startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
+    };
+
+    function startSync() {
+        if(unsubRoom) unsubRoom();
+        unsubRoom = onSnapshot(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), (snap) => {
+            if(!snap.exists()) return;
+            const data = snap.data();
+            roomData = data; document.getElementById('display-room-code').textContent = roomCode; document.getElementById('player-count').textContent = data.players.length;
+            document.getElementById('lobby-players').innerHTML = data.players.map(p => {
+                const name = p.name || p; const photo = p.photo || 'play_hangsung.png';
+                // 프로필 사진을 닉네임 왼쪽에 표시
+                const imgHtml = `<img src="${photo}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle; margin-right:10px; object-fit:cover;">`;
+                return `<div class="player-list-item ${name === myNickname ? 'is-me' : ''}">${imgHtml} ${name} ${name === myNickname ? '<span class="player-badge">나</span>' : ''}</div>`;
+            }).join('');
+            const isHost = data.hostId === currentUser.uid;
+            document.getElementById('host-controls').style.display = isHost ? 'block' : 'none';
+            document.getElementById('guest-waiting').style.display = isHost ? 'none' : 'block';
+            players = data.players; duration = data.duration;
+            const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; isRunning = t.isRunning;
+            document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
+            if(data.state === 'playing') {
+                if(currentMode !== 'timer-screen') { showScreen('timer-screen'); document.getElementById('room-code-badge').style.display = 'inline-block'; document.getElementById('btn-copy-code-timer').style.display = 'inline-flex'; }
+                document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
+                if(!isRunning) timeLeft = t.pausedTimeLeft;
+            }
+            refreshUI();
+        });
+    }
+
+    document.getElementById('start-online-session-btn').onclick = async () => {
+        if(players.length < 2) { showToast("최소 2명 이상의 크루가 모여야 시작할 수 있습니다. 👥", true); return; }
+        const nameList = players.map(p => p.name || p);
+        if (new Set(nameList).size !== nameList.length) { showToast("중복된 닉네임이 참여하고 있습니다. ✕", true); return; }
+        const m = parseInt(document.getElementById('online-duration-min').value) || 0;
+        const s = parseInt(document.getElementById('online-duration-sec').value) || 0;
+        const dur = Math.max(10, m * 60 + s);
+        await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { state: 'playing', duration: dur, "timer.pausedTimeLeft": dur });
+    };
+
+    document.getElementById('toggle-btn').onclick = async () => {
+        if(roomCode === null) { isRunning = !isRunning; refreshUI(); if(isRunning) startLocalInterval(); }
+        else {
+            if (roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 조작할 수 있습니다. 👑", true); return; }
+            const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
+            const snap = await getDoc(ref); const t = snap.data().timer;
+            if(isRunning) { const nowLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000)); await updateDoc(ref, { "timer.isRunning": false, "timer.pausedTimeLeft": nowLeft }); }
+            else { const newEnd = Date.now() + (t.pausedTimeLeft * 1000); await updateDoc(ref, { "timer.isRunning": true, "timer.endTime": newEnd, "autoSwitch": document.getElementById('auto-switch-checkbox').checked }); }
+        }
+    };
+    function startLocalInterval() {
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if(!isRunning) { clearInterval(timerInterval); return; }
+            if(timeLeft > 0) { timeLeft--; refreshUI(); }
+            else { 
+                isRunning = false; 
+                playAlert(); 
+                refreshUI(); 
+                // playAlert 내부에서 오프라인용 autoSwitch 처리됨
+            }
+        }, 1000);
+    }
+    document.getElementById('switch-btn').onclick = async () => {
+        if(isRunning) { showToast("타이머가 일시정지 상태일 때만 턴을 넘길 수 있습니다. ⏸️", true); return; }
+        const elapsed = duration - timeLeft; const isValidTurn = elapsed >= 3;
+        if(roomCode === null) { 
+            if(isValidTurn) turnCount++;
+            driverIndex = (driverIndex + 1) % players.length; timeLeft = duration; refreshUI(); 
+        } else { 
+            if (roomData.hostId !== currentUser.uid) { showToast("방장만 턴을 넘길 수 있습니다. 👑", true); return; }
+            const nextIdx = (driverIndex + 1) % players.length; const nextTurnCount = isValidTurn ? turnCount + 1 : turnCount;
+            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.isRunning": false, "timer.pausedTimeLeft": duration, "timer.driverIndex": nextIdx, "timer.turnCount": nextTurnCount }); 
+        }
+    };
+
+    document.getElementById('btn-reset-turn').onclick = async () => {
+        if (isRunning) return; 
+        if (roomCode === null) {
+            timeLeft = duration; refreshUI(); showToast("타이머가 초기화되었습니다. ⏱️");
+        } else {
+            if (roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
+            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.pausedTimeLeft": duration });
+            showToast("타이머가 초기화되었습니다. ⏱️");
+        }
+    };
+
+    window.addEventListener('keydown', (e) => {
+        if (currentMode !== 'timer-screen' || document.querySelector('.modal-overlay.active')) return;
+        if (e.code === 'Space') { e.preventDefault(); document.getElementById('toggle-btn').click(); } 
+        else if (e.code === 'Enter') { e.preventDefault(); document.getElementById('switch-btn').click(); }
+    });
+
+    setInterval(() => {
+        if(isRunning && roomCode !== null && currentMode === 'timer-screen') {
+            getDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode)).then(snap => {
+                const data = snap.data(); if(!data || !data.timer.isRunning) return;
+                const end = data.timer.endTime; const remain = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+                timeLeft = remain; refreshUI();
+                
+                // 온라인 모드 자동 턴 넘기기 로직 (방장 전용)
+                if(remain <= 0 && !isTimeUpAlerted) { 
+                    isTimeUpAlerted = true; 
+                    playAlert(); 
+                    if(data.hostId === currentUser.uid && data.autoSwitch) {
+                        setTimeout(async () => {
+                            const nextIdx = (data.timer.driverIndex + 1) % data.players.length;
+                            const nextTurnCount = data.timer.turnCount + 1;
+                            const newEnd = Date.now() + (data.duration * 1000);
+                            await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
+                                "timer.driverIndex": nextIdx,
+                                "timer.turnCount": nextTurnCount,
+                                "timer.endTime": newEnd,
+                                "timer.isRunning": true,
+                                "timer.pausedTimeLeft": data.duration
+                            });
+                        }, 1500);
+                    }
+                } else if(remain > 0) { isTimeUpAlerted = false; }
+            });
+        }
+    }, 1000);
+
+    document.getElementById('btn-end-timer').onclick = async () => {
+        if (isRunning) { showToast("일시정지 상태에서만 세션을 종료할 수 있습니다. ⏸️", true); return; }
+        if(roomCode !== null && roomData.hostId !== currentUser.uid) { showToast("방장만 세션을 종료할 수 있습니다. 👑", true); return; }
+        const totalMin = Math.round((Date.now() - sessionStartTime) / 60000);
+        document.getElementById('rep-players').textContent = players.map(p => p.name || p).join(', ');
+        document.getElementById('rep-time').textContent = `${totalMin}분`; document.getElementById('rep-turns').textContent = `${turnCount}회`; document.getElementById('rep-date').textContent = new Date().toLocaleDateString();
+        document.getElementById('save-msg').style.display = (currentUser && !currentUser.isAnonymous) ? 'block' : 'none';
+        document.getElementById('login-invite-msg').style.display = (currentUser && !currentUser.isAnonymous) ? 'none' : 'block';
+        if(currentUser && !currentUser.isAnonymous) await addDoc(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'), { players: players.map(p => p.name || p), totalMin, turnCount, createdAt: Timestamp.now() });
+        document.getElementById('report-modal-overlay').classList.add('active');
+    };
+
+    document.getElementById('btn-history').onclick = async () => {
+        if(!currentUser || currentUser.isAnonymous) return;
+        const snap = await getDocs(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'));
+        const list = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt.seconds - a.createdAt.seconds);
+        document.getElementById('history-list').innerHTML = list.map(item => `<div class="history-item"><div><div style="font-weight: 800; font-size: 1rem;">${item.players.join(' & ')}</div><div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div></div><div style="text-align: right;"><div style="font-weight: 900; color: var(--primary-color);">${item.totalMin}분</div><div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div></div></div>`).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
+        showScreen('history-screen');
+    };
+
+    const goHome = () => { if(unsubRoom) unsubRoom(); isRunning = false; roomCode = null; document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); showScreen('home-screen'); };
+    document.getElementById('back-to-home-btn').onclick = goHome;
+    document.getElementById('online-back-to-home').onclick = goHome;
+    document.getElementById('leave-room-btn').onclick = goHome;
+    document.getElementById('history-back-to-home').onclick = goHome;
+    document.getElementById('report-confirm').onclick = goHome;
+    
+    document.getElementById('offline-min-up').onclick = () => adjust('duration', 'min', 1);
+    document.getElementById('offline-min-down').onclick = () => adjust('duration', 'min', -1);
+    document.getElementById('offline-sec-up').onclick = () => adjust('duration', 'sec', 5);
+    document.getElementById('offline-sec-down').onclick = () => adjust('duration', 'sec', -5);
+    document.getElementById('online-min-up').onclick = () => adjust('online-duration', 'min', 1);
+    document.getElementById('online-min-down').onclick = () => adjust('online-duration', 'min', -1);
+    document.getElementById('online-sec-up').onclick = () => adjust('online-duration', 'sec', 5);
+    document.getElementById('online-sec-down').onclick = () => adjust('online-duration', 'sec', -5);
+
+    const setupDurationInputs = (minId, secId) => {
+        const mInput = document.getElementById(minId); const sInput = document.getElementById(secId);
+        [mInput, sInput].forEach(input => {
+            if (!input) return; 
+            input.addEventListener('focus', (e) => setTimeout(() => e.target.setSelectionRange(0, 0), 0));
+            input.addEventListener('blur', () => {
+                let mins = parseInt(mInput.value) || 0; let secs = parseInt(sInput.value) || 0; let total = mins * 60 + secs;
+                if (total > 1800) { mins = 30; secs = 0; }
+                if (total < 10 && total !== 0) { mins = 0; secs = 10; }
+                if (total === 0) { mins = 0; secs = 10; }
+                mInput.value = mins.toString().padStart(2, '0'); sInput.value = secs.toString().padStart(2, '0');
+            });
+            input.addEventListener('input', (e) => {
+                let val = e.target.value.replace(/[^0-9]/g, ''); if (val.length > 2) val = val.slice(0, 2);
+                if (input === sInput && parseInt(val) > 59) val = "59"; e.target.value = val;
+            });
+        });
+    };
+    setupDurationInputs('duration-min', 'duration-sec'); setupDurationInputs('online-duration-min', 'online-duration-sec');
+    setupDurationInputs('settings-duration-min', 'settings-duration-sec');
+
+    const settingsModal = document.getElementById('settings-modal-overlay');
+    document.getElementById('btn-timer-settings').onclick = () => {
+        if (isRunning) {
+            showToast("타이머가 작동 중일 때는 설정을 변경할 수 없습니다. ⏸️", true);
+            return;
+        }
+        const m = Math.floor(duration / 60); const s = duration % 60;
+        document.getElementById('settings-duration-min').value = String(m).padStart(2, '0');
+        document.getElementById('settings-duration-sec').value = String(s).padStart(2, '0');
+        document.getElementById('settings-sound-toggle').checked = isSoundEnabled;
+        document.getElementById('settings-volume-slider').value = soundVolume * 100;
+        document.getElementById('settings-volume-label').textContent = Math.round(soundVolume * 100);
+        settingsModal.classList.add('active');
+    };
+    document.getElementById('settings-volume-slider').oninput = (e) => { document.getElementById('settings-volume-label').textContent = e.target.value; };
+    document.getElementById('settings-cancel').onclick = () => settingsModal.classList.remove('active');
+    
+    document.getElementById('btn-sound-preview').onclick = () => {
+        const vol = document.getElementById('settings-volume-slider').value / 100;
+        playDingDong(vol);
+    };
+
+    document.getElementById('settings-apply').onclick = async () => {
+        const mInput = document.getElementById('settings-duration-min');
+        const sInput = document.getElementById('settings-duration-sec');
+        const m = parseInt(mInput.value) || 0;
+        const s = parseInt(sInput.value) || 0;
+        let newDur = Math.max(10, m * 60 + s);
+        if (newDur > 1800) newDur = 1800;
+        
+        isSoundEnabled = document.getElementById('settings-sound-toggle').checked;
+        soundVolume = document.getElementById('settings-volume-slider').value / 100;
+
+        if (roomCode === null) {
+            const isResetNeeded = duration !== newDur;
+            duration = newDur;
+            if (isResetNeeded && !isRunning) { timeLeft = duration; }
+            refreshUI();
+        } else {
+            if (roomData.hostId !== currentUser.uid) {
+                if (duration !== newDur) showToast("시간 설정은 방장만 가능합니다. 소리 설정만 저장됩니다. 🔇");
+            } else {
+                await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
+                    duration: newDur, 
+                    "timer.pausedTimeLeft": isRunning ? timeLeft : newDur
+                });
+            }
+        }
+        showToast("설정이 저장되었습니다. ⚙️");
+        settingsModal.classList.remove('active');
+    };
+</script>
+</body>
+</html>
