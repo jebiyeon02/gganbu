@@ -1502,16 +1502,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, updateDoc, arrayUnion, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyB7hlX0SpLxQUw6SI9K27lvUfqW4xO5iyY",
-        authDomain: "gganbu-83358.firebaseapp.com",
-        projectId: "gganbu-83358",
-        storageBucket: "gganbu-83358.firebasestorage.app",
-        messagingSenderId: "732813058221",
-        appId: "1:732813058221:web:b439cc09e382e3d20ce624",
-        measurementId: "G-S02TFN021T"
-    };
+    import { firebaseConfig } from "./firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
