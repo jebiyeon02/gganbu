@@ -1155,8 +1155,8 @@
             </div>
         </div>
 
-        <!-- 로그인 버튼에 구글 아이콘 및 문구 추가 -->
-        <button id="btn-login" class="auth-btn">
+        <!-- [수정] 초기 구글 로그인 버튼 숨김 -->
+        <button id="btn-login" class="auth-btn" style="display: none;">
             <img src="google.png" alt="Google" style="width:18px; height:18px; position: relative; top: 3.2px; right:3px;">
             <span>구글 계정으로 로그인</span>
         </button>
@@ -1223,6 +1223,12 @@
                 <!-- 오프라인 설정 진입 시 오프라인 아이콘 렌더링 -->
                 <img src="offline_hangsung.png" class="planet-logo" alt="오프라인 모드">
                 <h1>오프라인 모드</h1>
+            </div>
+
+            <!-- [추가] 오프라인 방 제목 입력란 -->
+            <div class="input-group">
+                <label for="offline-room-title-input">방 제목 (선택)</label>
+                <input type="text" id="offline-room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
             </div>
 
             <div class="input-group">
@@ -1598,6 +1604,9 @@
     let isSoundEnabled = true;
     let soundVolume = 0.5;
 
+    // [추가] 인증 확인 플래그 (새로고침 시 로그인 버튼 깜빡임 방지용)
+    let isAuthChecked = false;
+
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toast-message');
@@ -1625,23 +1634,32 @@
                 if (u.photoURL) { photoEl.src = u.photoURL; photoEl.style.display = 'block'; initialEl.style.display = 'none';
                 } else { photoEl.style.display = 'none'; initialEl.textContent = myNickname.charAt(0); initialEl.style.display = 'block'; }
                 if(currentMode === 'nickname-setting-screen') goHome();
-                updateAuthNavVisibility();
             }
         } else {
             if(!u) signInAnonymously(auth);
-            updateAuthNavVisibility();
         }
+        
+        // [수정] 인증 상태 확인 완료 후 UI 업데이트
+        isAuthChecked = true;
+        updateAuthNavVisibility();
     });
 
     function updateAuthNavVisibility() {
+        // [수정] 인증 상태 확인 전이면 아무것도 표시하지 않음
+        if (!isAuthChecked) return;
+
         const historyBtn = document.getElementById('btn-history');
         const profileNav = document.getElementById('user-profile-nav');
         const loginBtn = document.getElementById('btn-login');
         const isHome = currentMode === 'home-screen';
         if (currentUser && !currentUser.isAnonymous) {
-            loginBtn.style.display = 'none'; historyBtn.style.display = isHome ? 'block' : 'none'; profileNav.style.display = isHome ? 'block' : 'none';
+            loginBtn.style.display = 'none'; 
+            historyBtn.style.display = isHome ? 'block' : 'none'; 
+            profileNav.style.display = isHome ? 'block' : 'none';
         } else {
-            loginBtn.style.display = isHome ? 'block' : 'none'; historyBtn.style.display = 'none'; profileNav.style.display = 'none';
+            loginBtn.style.display = isHome ? 'block' : 'none'; 
+            historyBtn.style.display = 'none'; 
+            profileNav.style.display = 'none';
         }
     }
 
@@ -1742,6 +1760,15 @@
         // 타이머 작동 여부에 따른 버튼 활성/비활성화 통합 제어
         document.getElementById('btn-end-timer').disabled = isRunning;
         document.getElementById('btn-reset-turn').disabled = isRunning;
+        
+        // [추가] 자동 턴 넘기기 권한 제어
+        const autoSwitchCheck = document.getElementById('auto-switch-checkbox');
+        if (roomCode !== null) {
+            const isHost = roomData.hostId === currentUser.uid;
+            autoSwitchCheck.disabled = roomData.isHostOnlyControl && !isHost;
+        } else {
+            autoSwitchCheck.disabled = false;
+        }
     }
 
     function playDingDong(vol) {
@@ -1799,6 +1826,17 @@
         const mins = parseInt(document.getElementById('duration-min').value) || 0;
         const secs = parseInt(document.getElementById('duration-sec').value) || 0;
         duration = Math.max(10, mins * 60 + secs); timeLeft = duration; driverIndex = 0; turnCount = 1; isRunning = false;
+        
+        // [추가] 오프라인 방 제목 설정
+        const timerTitleEl = document.getElementById('timer-room-title');
+        const offTitle = document.getElementById('offline-room-title-input').value.trim();
+        if(offTitle) {
+            timerTitleEl.textContent = offTitle;
+            timerTitleEl.style.display = 'block';
+        } else {
+            timerTitleEl.style.display = 'none';
+        }
+
         sessionStartTime = Date.now(); showScreen('timer-screen'); refreshUI();
     };
 
@@ -1936,7 +1974,7 @@
             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
             const snap = await getDoc(ref); const t = snap.data().timer;
             if(isRunning) { const nowLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000)); await updateDoc(ref, { "timer.isRunning": false, "timer.pausedTimeLeft": nowLeft }); }
-            else { const newEnd = Date.now() + (t.pausedTimeLeft * 1000); await updateDoc(ref, { "timer.isRunning": true, "timer.endTime": newEnd, "autoSwitch": document.getElementById('auto-switch-checkbox').checked }); }
+            else { const newEnd = Date.now() + (t.pausedTimeLeft * 1000); await updateDoc(ref, { "timer.isRunning": true, "timer.endTime": newEnd }); }
         }
     };
     
@@ -2035,7 +2073,14 @@
         document.getElementById('save-msg').style.display = isLoggedUser ? 'block' : 'none';
         document.getElementById('login-invite-msg').style.display = isLoggedUser ? 'none' : 'block';
         
-        const historyTitle = roomCode ? roomData.roomTitle : "오프라인 세션";
+        // [수정] 히스토리 타이틀 로직 (오프라인 방 제목 반영)
+        let historyTitle = "페어 세션";
+        if (roomCode !== null) {
+            historyTitle = roomData.roomTitle;
+        } else {
+            const offTitle = document.getElementById('offline-room-title-input').value.trim();
+            historyTitle = offTitle || "오프라인 세션";
+        }
         
         // [수정] 온라인/오프라인 여부(isOnline)를 포함하여 히스토리에 저장
         if(isLoggedUser) {
