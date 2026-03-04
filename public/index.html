@@ -1091,6 +1091,41 @@
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+
+        /* [추가] 설정 탭 스타일 */
+        .modal-tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        .tab-link {
+            padding: 0.5rem 0.25rem;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-link.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        
+        /* 비활성화된 탭 내용 스타일 */
+        .tab-pane.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -1432,39 +1467,61 @@
 <!-- 환경설정 모달 -->
 <div id="settings-modal-overlay" class="modal-overlay">
     <div class="modal-content">
-        <h3 style="margin-bottom: 2rem; font-size: 1.5rem; font-weight: 800;">타이머 설정</h3>
+        <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800;">타이머 설정</h3>
         
-        <div class="input-group">
-            <label>턴 길이 재설정</label>
-            <div class="duration-setting-wrapper" style="padding: 1.5rem; margin-top: 0.5rem;">
-                <div class="duration-input-box" style="font-size: 3rem;">
-                    <input type="text" id="settings-duration-min" value="05" inputmode="numeric" maxlength="2" style="width: 4rem;">
-                    <span class="time-unit">분</span>
-                    <input type="text" id="settings-duration-sec" value="00" inputmode="numeric" maxlength="2" style="width: 4rem;">
-                    <span class="time-unit">초</span>
+        <!-- [추가] 탭 네비게이션 -->
+        <div class="modal-tabs">
+            <button class="tab-link active" data-tab="tab-session">세션 설정</button>
+            <button class="tab-link" data-tab="tab-personal">개인 설정</button>
+        </div>
+
+        <!-- [분리] 세션 설정 탭 -->
+        <div id="tab-session" class="tab-pane active">
+            <div class="input-group">
+                <label>턴 길이 재설정</label>
+                <div class="duration-setting-wrapper" style="padding: 1.5rem; margin-top: 0.5rem;">
+                    <div class="duration-input-box" style="font-size: 3rem;">
+                        <input type="text" id="settings-duration-min" value="05" inputmode="numeric" maxlength="2" style="width: 4rem;">
+                        <span class="time-unit">분</span>
+                        <input type="text" id="settings-duration-sec" value="00" inputmode="numeric" maxlength="2" style="width: 4rem;">
+                        <span class="time-unit">초</span>
+                    </div>
+                </div>
+                <div class="range-info">
+                    <span>최소 10초</span>
+                    <span>최대 30분 00초</span>
                 </div>
             </div>
-            <!-- 모달 내에서도 범위 안내 표시 -->
-            <div class="range-info">
-                <span>최소 10초</span>
-                <span>최대 30분 00초</span>
+
+            <!-- 방장만 타이머 제어 설정 (온라인 모드 전용) -->
+            <div id="host-only-control-row" class="settings-row" style="display: none;">
+                <label>방장만 타이머 제어</label>
+                <label class="switch">
+                    <input type="checkbox" id="settings-host-only-control" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
+            
+            <p id="session-settings-hint" style="display: none; font-size: 0.8rem; color: var(--danger-color); font-weight: 700; margin-top: -0.5rem;">※ 세션 설정은 방장만 변경할 수 있습니다.</p>
         </div>
 
-        <div class="settings-row">
-            <label>종료 알림음 켜기</label>
-            <label class="switch">
-                <input type="checkbox" id="settings-sound-toggle" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="input-group">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                <label style="margin-bottom: 0;">알림음 볼륨 (<span id="settings-volume-label">50</span>%)</label>
-                <button id="btn-sound-preview" class="auth-btn" style="padding: 0.3rem 0.7rem; font-size: 0.75rem; border-radius: 0.5rem;">▶ 미리듣기</button>
+        <!-- [분리] 개인 설정 탭 -->
+        <div id="tab-personal" class="tab-pane">
+            <div class="settings-row">
+                <label>종료 알림음 켜기</label>
+                <label class="switch">
+                    <input type="checkbox" id="settings-sound-toggle" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
-            <input type="range" id="settings-volume-slider" class="volume-slider" min="0" max="100" value="50" style="margin-top: 0.5rem;">
+
+            <div class="input-group">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <label style="margin-bottom: 0;">알림음 볼륨 (<span id="settings-volume-label">50</span>%)</label>
+                    <button id="btn-sound-preview" class="auth-btn" style="padding: 0.3rem 0.7rem; font-size: 0.75rem; border-radius: 0.5rem;">▶ 미리듣기</button>
+                </div>
+                <input type="range" id="settings-volume-slider" class="volume-slider" min="0" max="100" value="50" style="margin-top: 0.5rem;">
+            </div>
         </div>
 
         <div class="modal-buttons">
@@ -1764,6 +1821,7 @@
         await setDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
             roomCode, hostId: currentUser.uid, players: [me], state: 'lobby', duration: 300, autoSwitch: false,
             roomTitle: "", // [수정] 처음에는 빈값으로 초기화
+            isHostOnlyControl: true, // [추가] 기본값 방장만 제어
             timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1 }
         });
         startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
@@ -1854,7 +1912,8 @@
     document.getElementById('toggle-btn').onclick = async () => {
         if(roomCode === null) { isRunning = !isRunning; refreshUI(); if(isRunning) startLocalInterval(); }
         else {
-            if (roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 조작할 수 있습니다. 👑", true); return; }
+            // [수정] 방장 전용 제어 옵션 확인
+            if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 조작할 수 있습니다. 👑", true); return; }
             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
             const snap = await getDoc(ref); const t = snap.data().timer;
             if(isRunning) { const nowLeft = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000)); await updateDoc(ref, { "timer.isRunning": false, "timer.pausedTimeLeft": nowLeft }); }
@@ -1881,7 +1940,8 @@
             if(isValidTurn) turnCount++;
             driverIndex = (driverIndex + 1) % players.length; timeLeft = duration; refreshUI(); 
         } else { 
-            if (roomData.hostId !== currentUser.uid) { showToast("방장만 턴을 넘길 수 있습니다. 👑", true); return; }
+            // [수정] 방장 전용 제어 옵션 확인
+            if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 턴을 넘길 수 있습니다. 👑", true); return; }
             const nextIdx = (driverIndex + 1) % players.length; const nextTurnCount = isValidTurn ? turnCount + 1 : turnCount;
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.isRunning": false, "timer.pausedTimeLeft": duration, "timer.driverIndex": nextIdx, "timer.turnCount": nextTurnCount }); 
         }
@@ -1892,7 +1952,8 @@
         if (roomCode === null) {
             timeLeft = duration; refreshUI(); showToast("타이머가 초기화되었습니다. ⏱️");
         } else {
-            if (roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
+            // [수정] 방장 전용 제어 옵션 확인
+            if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { "timer.pausedTimeLeft": duration });
             showToast("타이머가 초기화되었습니다. ⏱️");
         }
@@ -1936,7 +1997,8 @@
 
     document.getElementById('btn-end-timer').onclick = async () => {
         if (isRunning) { showToast("일시정지 상태에서만 세션을 종료할 수 있습니다. ⏸️", true); return; }
-        if(roomCode !== null && roomData.hostId !== currentUser.uid) { showToast("방장만 세션을 종료할 수 있습니다. 👑", true); return; }
+        // [수정] 방장 전용 제어 옵션 확인
+        if(roomCode !== null && roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 세션을 종료할 수 있습니다. 👑", true); return; }
         const totalMin = Math.round((Date.now() - sessionStartTime) / 60000);
         document.getElementById('rep-players').textContent = players.map(p => p.name || p).join(', ');
         document.getElementById('rep-time').textContent = `${totalMin}분`; document.getElementById('rep-turns').textContent = `${turnCount}회`; document.getElementById('rep-date').textContent = new Date().toLocaleDateString();
@@ -2013,18 +2075,57 @@
     setupDurationInputs('duration-min', 'duration-sec'); setupDurationInputs('online-duration-min', 'online-duration-sec');
     setupDurationInputs('settings-duration-min', 'settings-duration-sec');
 
+    /* [추가] 탭 전환 로직 */
+    document.querySelectorAll('.tab-link').forEach(link => {
+        link.onclick = (e) => {
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            link.classList.add('active');
+            document.getElementById(link.getAttribute('data-tab')).classList.add('active');
+        };
+    });
+
     const settingsModal = document.getElementById('settings-modal-overlay');
     document.getElementById('btn-timer-settings').onclick = () => {
         if (isRunning) {
             showToast("타이머가 작동 중일 때는 설정을 변경할 수 없습니다. ⏸️", true);
             return;
         }
+        
+        // 초기 탭 설정
+        document.querySelector('.tab-link[data-tab="tab-session"]').click();
+
         const m = Math.floor(duration / 60); const s = duration % 60;
         document.getElementById('settings-duration-min').value = String(m).padStart(2, '0');
         document.getElementById('settings-duration-sec').value = String(s).padStart(2, '0');
         document.getElementById('settings-sound-toggle').checked = isSoundEnabled;
         document.getElementById('settings-volume-slider').value = soundVolume * 100;
         document.getElementById('settings-volume-label').textContent = Math.round(soundVolume * 100);
+        
+        // 온라인 모드 권한 제어 UI
+        const hostControlRow = document.getElementById('host-only-control-row');
+        const sessionTabPane = document.getElementById('tab-session');
+        const sessionHint = document.getElementById('session-settings-hint');
+        
+        if (roomCode !== null) {
+            hostControlRow.style.display = 'flex';
+            document.getElementById('settings-host-only-control').checked = roomData.isHostOnlyControl;
+            
+            // 방장이 아닌 경우 세션 설정 탭의 입력 요소들 비활성화
+            const isHost = roomData.hostId === currentUser.uid;
+            if (!isHost) {
+                sessionTabPane.classList.add('disabled');
+                sessionHint.style.display = 'block';
+            } else {
+                sessionTabPane.classList.remove('disabled');
+                sessionHint.style.display = 'none';
+            }
+        } else {
+            hostControlRow.style.display = 'none';
+            sessionTabPane.classList.remove('disabled');
+            sessionHint.style.display = 'none';
+        }
+
         settingsModal.classList.add('active');
     };
     document.getElementById('settings-volume-slider').oninput = (e) => { document.getElementById('settings-volume-label').textContent = e.target.value; };
@@ -2043,6 +2144,7 @@
         let newDur = Math.max(10, m * 60 + s);
         if (newDur > 1800) newDur = 1800;
         
+        // 개인 설정은 항상 반영
         isSoundEnabled = document.getElementById('settings-sound-toggle').checked;
         soundVolume = document.getElementById('settings-volume-slider').value / 100;
 
@@ -2052,16 +2154,21 @@
             if (isResetNeeded && !isRunning) { timeLeft = duration; }
             refreshUI();
         } else {
-            if (roomData.hostId !== currentUser.uid) {
-                if (duration !== newDur) showToast("시간 설정은 방장만 가능합니다. 소리 설정만 저장됩니다. 🔇");
-            } else {
+            // 온라인 모드에서는 방장일 때만 세션 설정 업데이트
+            if (roomData.hostId === currentUser.uid) {
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     duration: newDur, 
+                    isHostOnlyControl: document.getElementById('settings-host-only-control').checked,
                     "timer.pausedTimeLeft": isRunning ? timeLeft : newDur
                 });
+            } else {
+                // 방장이 아니더라도 개인 설정 저장을 위해 알림만 띄움
+                if (duration !== newDur || document.getElementById('settings-host-only-control').checked !== roomData.isHostOnlyControl) {
+                    showToast("세션 설정은 방장만 가능합니다. 개인 설정만 반영되었습니다. ⚙️");
+                }
             }
         }
-        showToast("설정이 저장되었습니다. ⚙️");
+        showToast("설정이 저장되었습니다. ✨");
         settingsModal.classList.remove('active');
     };
 </script>
