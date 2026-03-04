@@ -66,7 +66,7 @@
             z-index: 50;
         }
 
-        /* [추가] 왼쪽 상단 네비게이션 영역 */
+        /* 왼쪽 상단 네비게이션 영역 */
         .left-nav {
             position: absolute;
             top: 2rem;
@@ -76,7 +76,7 @@
             z-index: 50;
         }
 
-        /* [수정] 구글 로그인 버튼 위아래 정렬 최적화 */
+        /* 구글 로그인 버튼 위아래 정렬 최적화 */
         .auth-btn {
             background: white;
             border: 1px solid #e5e7eb;
@@ -802,6 +802,7 @@
             align-items: center;
             text-align: left;
             transition: 0.2s;
+            cursor: pointer; /* [수정] 클릭 가능하도록 커서 추가 */
         }
 
         .history-item:hover {
@@ -1102,7 +1103,7 @@
             transform: translateX(20px);
         }
 
-        /* [추가] 설정 탭 스타일 */
+        /* 설정 탭 스타일 */
         .modal-tabs {
             display: flex;
             border-bottom: 2px solid #e5e7eb;
@@ -1344,7 +1345,7 @@
     <!-- 로비 화면 (온라인 대기실) -->
     <div id="lobby-screen" class="screen">
         <div class="setup-container">
-            <!-- [추가] 로비에서도 방 제목 표시 (손님용) -->
+            <!-- 로비에서도 방 제목 표시 (손님용) -->
             <h2 id="lobby-room-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--primary-hover);"></h2>
             <h1 style="margin-bottom: 1rem;">대기실</h1>
             
@@ -1418,10 +1419,10 @@
 
     <!-- 타이머 화면 -->
     <div id="timer-screen" class="screen">
-        <!-- [수정] 방 제목과 설정 버튼을 위한 헤더 컨테이너 -->
+        <!-- 방 제목과 설정 버튼을 위한 헤더 컨테이너 -->
         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <!-- [추가] 타이머 화면 상단 방 제목 표시 -->
+                <!-- 타이머 화면 상단 방 제목 표시 -->
                 <h2 id="timer-room-title" style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); display: none;"></h2>
 
                 <!-- 설정 톱니바퀴 버튼 (position: static으로 변경) -->
@@ -1429,7 +1430,7 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
             </div>
-            <!-- [추가] 방장 정보 표시란 -->
+            <!-- 방장 정보 표시란 -->
             <div id="timer-host-info" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; display: none; margin-top: 4px;"></div>
         </div>
 
@@ -1497,13 +1498,13 @@
     <div class="modal-content">
         <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800;">타이머 설정</h3>
         
-        <!-- [추가] 탭 네비게이션 -->
+        <!-- 탭 네비게이션 -->
         <div class="modal-tabs">
             <button class="tab-link active" data-tab="tab-session">세션 설정</button>
             <button class="tab-link" data-tab="tab-personal">개인 설정</button>
         </div>
 
-        <!-- [분리] 세션 설정 탭 -->
+        <!-- 세션 설정 탭 -->
         <div id="tab-session" class="tab-pane active">
             <div class="input-group">
                 <label>턴 길이 재설정</label>
@@ -1533,7 +1534,7 @@
             <p id="session-settings-hint" style="display: none; font-size: 0.8rem; color: var(--danger-color); font-weight: 700; margin-top: -0.5rem;">※ 세션 설정은 방장만 변경할 수 있습니다.</p>
         </div>
 
-        <!-- [분리] 개인 설정 탭 -->
+        <!-- 개인 설정 탭 -->
         <div id="tab-personal" class="tab-pane">
             <div class="settings-row">
                 <label>종료 알림음 켜기</label>
@@ -1559,7 +1560,7 @@
     </div>
 </div>
 
-<!-- FAQ 모달 [수정] -->
+<!-- FAQ 모달 -->
 <div id="faq-modal-overlay" class="modal-overlay">
     <div class="modal-content" style="max-width: 500px; text-align: left;">
         <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 800; text-align: center;">자주 묻는 질문 (FAQ)</h3>
@@ -1576,18 +1577,42 @@
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 실수로 세션을 나와버려서 메인 화면으로 이동됐는데 어떡하죠?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">아직 세션이 종료되지 않았다면 동일한 방 코드를 입력하여 기존 세션에 다시 참여할 수 있습니다.</p>
             </div>
-            <!-- [추가] 4번째 질문 -->
             <div>
                 <p style="font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Q. 온라인 세션은 영원히 유지되나요?</p>
                 <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">방장이 세션을 종료하거나, 세션이 생성된 후 24시간이 지나면 자동으로 세션은 삭제됩니다.</p>
             </div>
         </div>
-        <!-- [추가] 피드백 설문지 링크 -->
         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSfmGGwQsqLOHQhPGO7JW9Bujadjhdrob0l65t-Vy-63S4ICCA/viewform?usp=dialog" target="_blank" style="color: var(--primary-hover); font-weight: 800; font-size: 0.9rem; text-decoration: none;">💬 깐부에게 소중한 의견 남기기</a>
         </div>
         <div class="modal-buttons" style="margin-top: 1.5rem;">
             <button id="faq-close" class="modal-btn btn-primary" style="width: 100%;">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 히스토리 상세 정보 모달 [추가] -->
+<div id="history-detail-modal-overlay" class="modal-overlay">
+    <div class="modal-content" style="max-width: 480px;">
+        <h3 id="hist-detail-title" style="margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 900; color: var(--primary-hover);">세션 상세 정보</h3>
+        <p id="hist-detail-date" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 1.5rem;"></p>
+        
+        <div class="report-card" style="grid-template-columns: 1fr;">
+            <div class="report-stat" style="border-bottom: 1px solid #eee; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                <span class="stat-label">참여 크루</span><span id="hist-detail-players" class="stat-value">-</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="report-stat"><span class="stat-label">시작 시간</span><span id="hist-detail-start" class="stat-value">-</span></div>
+                <div class="report-stat"><span class="stat-label">종료 시간</span><span id="hist-detail-end" class="stat-value">-</span></div>
+                <div class="report-stat"><span class="stat-label">세션 유지 시간</span><span id="hist-detail-duration" class="stat-value">-</span></div>
+                <div class="report-stat"><span class="stat-label">총 학습 시간</span><span id="hist-detail-study" class="stat-value">-</span></div>
+                <div class="report-stat"><span class="stat-label">교대 횟수</span><span id="hist-detail-turns" class="stat-value">0회</span></div>
+                <div class="report-stat"><span class="stat-label">진행 방식</span><span id="hist-detail-mode" class="stat-value">-</span></div>
+            </div>
+        </div>
+        
+        <div class="modal-buttons">
+            <button id="hist-detail-close" class="modal-btn btn-primary" style="width: 100%;">닫기</button>
         </div>
     </div>
 </div>
@@ -1620,6 +1645,9 @@
             <div class="report-stat"><span class="stat-label">진행 시간</span><span id="rep-time" class="stat-value">0분</span></div>
             <div class="report-stat"><span class="stat-label">교대 횟수</span><span id="rep-turns" class="stat-value">0회</span></div>
             <div class="report-stat"><span class="stat-label">날짜</span><span id="rep-date" class="stat-value">-</span></div>
+            <!-- [추가] 시작/종료 시간 표시 -->
+            <div class="report-stat"><span class="stat-label">시작 시간</span><span id="rep-start-time" class="stat-value">-</span></div>
+            <div class="report-stat"><span class="stat-label">종료 시간</span><span id="rep-end-time" class="stat-value">-</span></div>
         </div>
         <p id="save-msg" style="font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1.5rem; color: var(--primary-hover); font-weight: 700; display: none;">로그인하여 히스토리에 기록을 저장했습니다!</p>
         <p id="login-invite-msg" style="font-size: 0.8rem; margin-top: -0.5rem; margin-bottom: 1.5rem; color: var(--text-muted); font-weight: 500;">로그인하시면 히스토리에 기록이 남습니다.</p>
@@ -1659,11 +1687,14 @@
     let isSoundEnabled = true;
     let soundVolume = 0.5;
 
-    // [추가] 인증 확인 플래그 (새로고침 시 로그인 버튼 깜빡임 방지용)
+    // 인증 확인 플래그 (새로고침 시 로그인 버튼 깜빡임 방지용)
     let isAuthChecked = false;
     
-    // [추가] 클라이언트-서버 간 시간차 (Clock Drift) 보정 변수
+    // 클라이언트-서버 간 시간차 (Clock Drift) 보정 변수
     let clientServerDiff = 0;
+
+    // [추가] 실제 학습 시간 (타이머가 작동한 시간) 추적 변수
+    let totalStudySeconds = 0;
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
@@ -1697,22 +1728,19 @@
             if(!u) signInAnonymously(auth);
         }
         
-        // [수정] 인증 상태 확인 완료 후 UI 업데이트
         isAuthChecked = true;
         updateAuthNavVisibility();
     });
 
     function updateAuthNavVisibility() {
-        // [수정] 인증 상태 확인 전이면 아무것도 표시하지 않음
         if (!isAuthChecked) return;
 
         const historyBtn = document.getElementById('btn-history');
         const profileNav = document.getElementById('user-profile-nav');
         const loginBtn = document.getElementById('btn-login');
-        const leftNav = document.getElementById('left-nav'); // [추가] FAQ 영역
+        const leftNav = document.getElementById('left-nav');
         const isHome = currentMode === 'home-screen';
 
-        // FAQ 버튼 노출 제어
         leftNav.style.display = isHome ? 'flex' : 'none';
 
         if (currentUser && !currentUser.isAnonymous) {
@@ -1770,7 +1798,6 @@
     document.getElementById('btn-login').onclick = () => signInWithPopup(auth, googleProvider);
     document.getElementById('btn-logout').onclick = () => signOut(auth);
 
-    // [추가] FAQ 모달 제어
     const faqModal = document.getElementById('faq-modal-overlay');
     document.getElementById('btn-faq').onclick = () => faqModal.classList.add('active');
     document.getElementById('faq-close').onclick = () => faqModal.classList.remove('active');
@@ -1799,7 +1826,6 @@
                 card.style.display = 'flex';
                 const p = players[i];
                 
-                // 사용자의 프로필 사진을 닉네임 왼쪽에 표시
                 const photoUrl = p.photo || 'play_hangsung.png';
                 const photoHtml = `<img src="${photoUrl}" style="width:24px; height:24px; border-radius:50%; object-fit:cover; vertical-align:middle;">`;
                 nameElt.innerHTML = `${photoHtml} <span>${p.name || p}</span>`;
@@ -1808,13 +1834,10 @@
                 card.classList.toggle('active', isDriver);
                 titleElt.textContent = isDriver ? 'Driver' : 'Navigator';
                 
-                // 역할별 아이콘 고정 (driver_hangsung.png, navigator_hangsung.png)
                 const roleIcon = isDriver ? 'driver_hangsung.png' : 'navigator_hangsung.png';
                 
-                // 네비게이터 좌우반전 로직 (항상 드라이버를 향하도록)
                 let imgStyle = 'width:180px; height:180px; object-fit:contain; mix-blend-mode: multiply;';
                 if (!isDriver && i < driverIndex) {
-                    // 드라이버보다 왼쪽에 있는 네비게이터는 오른쪽을 바라보도록 반전
                     imgStyle += ' transform: scaleX(-1);';
                 }
                 
@@ -1825,11 +1848,9 @@
         tBtn.textContent = isRunning ? "일시정지" : "시작"; tBtn.className = isRunning ? "control-btn btn-outline" : "control-btn btn-primary";
         const sBtn = document.getElementById('switch-btn'); sBtn.disabled = isRunning;
         
-        // 타이머 작동 여부에 따른 버튼 활성/비활성화 통합 제어
         document.getElementById('btn-end-timer').disabled = isRunning;
         document.getElementById('btn-reset-turn').disabled = isRunning;
         
-        // [추가] 자동 턴 넘기기 권한 제어
         const autoSwitchCheck = document.getElementById('auto-switch-checkbox');
         if (roomCode !== null) {
             const isHost = roomData.hostId === currentUser.uid;
@@ -1859,7 +1880,6 @@
         if (isSoundEnabled) { playDingDong(soundVolume); }
         showToast("턴 종료! 역할을 교대하세요. 🔄");
         
-        // 자동 턴 넘기기 체크 시 교대 후 즉시 시작 (오프라인 전용)
         if (roomCode === null && document.getElementById('auto-switch-checkbox').checked) {
             setTimeout(() => {
                 document.getElementById('switch-btn').click();
@@ -1885,7 +1905,6 @@
         if(pList.length < 2) { showToast("최소 두 명의 크루가 필요합니다. 👥", true); return; }
         if (new Set(pList).size !== pList.length) { showToast("중복된 닉네임이 있습니다. ✕", true); return; }
         
-        // 내 닉네임과 일치하는 크루에게는 내 프로필 이미지를 할당
         players = pList.map(n => ({
             name: n, 
             photo: (n === myNickname && currentUser && !currentUser.isAnonymous) ? currentUser.photoURL : null
@@ -1894,13 +1913,13 @@
         const mins = parseInt(document.getElementById('duration-min').value) || 0;
         const secs = parseInt(document.getElementById('duration-sec').value) || 0;
         duration = Math.max(10, mins * 60 + secs); timeLeft = duration; driverIndex = 0; turnCount = 1; isRunning = false;
-        
-        // [추가] 오프라인 방 제목 설정
+        totalStudySeconds = 0; // [추가] 초기화
+
         const timerTitleEl = document.getElementById('timer-room-title');
-        const timerHostInfoEl = document.getElementById('timer-host-info'); // [추가]
+        const timerHostInfoEl = document.getElementById('timer-host-info');
         const offTitle = document.getElementById('offline-room-title-input').value.trim();
         
-        timerHostInfoEl.style.display = 'none'; // 오프라인은 방장 정보 숨김
+        timerHostInfoEl.style.display = 'none'; 
         if(offTitle) {
             timerTitleEl.textContent = offTitle;
             timerTitleEl.style.display = 'block';
@@ -1929,10 +1948,10 @@
         };
         await setDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
             roomCode, hostId: currentUser.uid, players: [me], state: 'lobby', duration: 300, autoSwitch: false,
-            roomTitle: "", // [수정] 처음에는 빈값으로 초기화
-            isHostOnlyControl: true, // [추가] 기본값 방장만 제어
-            createdAt: serverTimestamp(), // [추가] 24시간 자동 삭제를 위한 기준 시간
-            timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1 }
+            roomTitle: "", 
+            isHostOnlyControl: true, 
+            createdAt: serverTimestamp(), 
+            timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1, totalStudySeconds: 0 } // [수정] 학습시간 필드
         });
         startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
     };
@@ -1944,7 +1963,6 @@
         const snap = await getDoc(roomRef);
         if(!snap.exists()) { showToast("존재하지 않는 방입니다. ✕", true); return; }
         
-        // [추가] 만료된 방 체크
         if (snap.data().createdAt) {
             const created = snap.data().createdAt.toMillis();
             if (Date.now() - created > 24 * 60 * 60 * 1000) {
@@ -1967,7 +1985,6 @@
     function startSync() {
         if(unsubRoom) unsubRoom();
         unsubRoom = onSnapshot(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), (snap) => {
-            // [수정] 문서 삭제 감지 시 종료 처리
             if(!snap.exists()) {
                 if (currentMode === 'timer-screen') finishSession();
                 else goHome();
@@ -1977,7 +1994,6 @@
             const data = snap.data();
             roomData = data; 
 
-            // [추가] 24시간 만료 체크 (onSnapshot에서도 수행)
             if (data.createdAt) {
                 const created = data.createdAt.toMillis();
                 if (Date.now() - created > 24 * 60 * 60 * 1000) {
@@ -1991,13 +2007,11 @@
             document.getElementById('display-room-code').textContent = roomCode; 
             document.getElementById('player-count').textContent = data.players.length;
             
-            // [추가] 로비에서 방 제목 표시
             const lobbyTitleEl = document.getElementById('lobby-room-title');
             if(data.roomTitle) lobbyTitleEl.textContent = `[${data.roomTitle}]`;
 
             document.getElementById('lobby-players').innerHTML = data.players.map(p => {
                 const name = p.name || p; const photo = p.photo || 'play_hangsung.png';
-                // 프로필 사진을 닉네임 왼쪽에 표시
                 const imgHtml = `<img src="${photo}" style="width:30px; height:30px; border-radius:50%; vertical-align:middle; margin-right:10px; object-fit:cover;">`;
                 return `<div class="player-list-item ${name === myNickname ? 'is-me' : ''}">${imgHtml} ${name} ${name === myNickname ? '<span class="player-badge">나</span>' : ''}</div>`;
             }).join('');
@@ -2007,20 +2021,19 @@
             players = data.players; duration = data.duration;
             const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; 
             
-            // [수정] 온라인 모드 상태 동기화 개선
+            // [수정] 학습 시간 동기화
+            totalStudySeconds = t.totalStudySeconds || 0;
+
             const wasRunning = isRunning;
             isRunning = t.isRunning;
             document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
             
-            // [추가] 서버 시간과의 동기화 (Offset 계산)
-            // lastUpdated 필드가 존재할 때, 클라이언트 시스템 클락과의 오차를 측정
             if (data.lastUpdated && !snap.metadata.hasPendingWrites) {
                 const serverMillis = data.lastUpdated.toMillis();
                 const localMillis = Date.now();
                 clientServerDiff = serverMillis - localMillis;
             }
 
-            // [수정] 세션 종료 상태 감지 (참여자 전원 종료 처리)
             if (data.state === 'ended') {
                 finishSession();
                 return;
@@ -2033,14 +2046,12 @@
                     document.getElementById('btn-copy-code-timer').style.display = 'inline-flex'; 
                 }
                 
-                // [추가] 타이머 화면 상단 방 제목 표시 및 방장 정보 표시
                 const timerTitleEl = document.getElementById('timer-room-title');
-                const timerHostInfoEl = document.getElementById('timer-host-info'); // [추가]
+                const timerHostInfoEl = document.getElementById('timer-host-info');
                 if(data.roomTitle) {
                     timerTitleEl.textContent = data.roomTitle;
                     timerTitleEl.style.display = 'block';
 
-                    // [추가] 방장 표시 로직
                     const host = data.players.find(p => p.uid === data.hostId);
                     if (host) {
                         timerHostInfoEl.textContent = `방장 : ${host.name}`;
@@ -2052,9 +2063,6 @@
 
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
                 
-                // [수정] 기기 간 시간차(Clock Drift) 방지 로직
-                // 타이머가 시작될 때만 endTime을 기준으로 timeLeft를 한 번 계산
-                // 로컬의 Date.now()에 보정값(clientServerDiff)을 적용하여 서버 시간 기준으로 맞춤
                 if (isRunning && !wasRunning) {
                     const adjustedNow = Date.now() + clientServerDiff;
                     timeLeft = Math.max(0, Math.ceil((t.endTime - adjustedNow) / 1000));
@@ -2072,7 +2080,6 @@
         const nameList = players.map(p => p.name || p);
         if (new Set(nameList).size !== nameList.length) { showToast("중복된 닉네임이 참여하고 있습니다. ✕", true); return; }
         
-        // [수정] 세션 시작 시 방 제목 필수 확인
         const rTitle = document.getElementById('room-title-input').value.trim();
         if(!rTitle) { showToast("방 제목을 입력해주세요. 🏠", true); return; }
 
@@ -2082,8 +2089,9 @@
         await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
             state: 'playing', 
             duration: dur, 
-            roomTitle: rTitle, // [추가] 방 제목 업데이트
-            lastUpdated: serverTimestamp(), // 서버 시간을 기준으로 동기화하기 위한 필드
+            roomTitle: rTitle, 
+            lastUpdated: serverTimestamp(), 
+            sessionStartedAt: serverTimestamp(), 
             "timer.pausedTimeLeft": dur 
         });
     };
@@ -2091,7 +2099,6 @@
     document.getElementById('toggle-btn').onclick = async () => {
         if(roomCode === null) { isRunning = !isRunning; refreshUI(); if(isRunning) startLocalInterval(); }
         else {
-            // [수정] 방장 전용 제어 옵션 확인
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 조작할 수 있습니다. 👑", true); return; }
             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
             const snap = await getDoc(ref); const t = snap.data().timer;
@@ -2101,6 +2108,7 @@
                 await updateDoc(ref, { 
                     "timer.isRunning": false, 
                     "timer.pausedTimeLeft": nowLeft,
+                    "timer.totalStudySeconds": totalStudySeconds, // [수정] 중지 시 학습시간 기록
                     lastUpdated: serverTimestamp()
                 }); 
             }
@@ -2116,35 +2124,29 @@
         }
     };
     
-    // [수정] 타이머 틱(Tick) 로직 통합
     function startLocalInterval() {
         if(timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if(!isRunning) { clearInterval(timerInterval); return; }
             if(timeLeft > 0) { 
                 timeLeft--; 
+                totalStudySeconds++; // [추가] 실제 학습 시간 누적
                 refreshUI(); 
             } else { 
                 isRunning = false; 
                 playAlert(); 
                 refreshUI();
                 
-                // [수정] 온라인 모드 자동 턴 넘기기 로직 (권한 체크 및 중복 실행 방지 보강)
                 if (roomCode !== null && roomData.autoSwitch) {
                     const isHost = roomData.hostId === currentUser.uid;
                     const isDriver = players[driverIndex]?.uid === currentUser.uid;
-                    
-                    // 권한 확인: '방장만 제어'면 방장만, 아니면 현재 드라이버(가장 활성 상태인 참여자)가 전담 수행
                     const canTrigger = roomData.isHostOnlyControl ? isHost : isDriver;
                     
                     if(canTrigger) {
                         setTimeout(async () => {
-                            // 중복 스킵 방지를 위해 최신 DB 상태 다시 확인
                             const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
                             const snap = await getDoc(ref);
                             const latest = snap.data();
-                            
-                            // 보정된 시간 적용
                             const adjustedNow = Date.now() + clientServerDiff;
                             if(!latest || !latest.timer || latest.timer.isRunning === true && Math.ceil((latest.timer.endTime - adjustedNow) / 1000) > 2) return;
 
@@ -2157,6 +2159,7 @@
                                 "timer.endTime": newEnd,
                                 "timer.isRunning": true,
                                 "timer.pausedTimeLeft": latest.duration,
+                                "timer.totalStudySeconds": totalStudySeconds, // 학습 시간 기록
                                 lastUpdated: serverTimestamp()
                             });
                         }, 1200);
@@ -2173,7 +2176,6 @@
             if(isValidTurn) turnCount++;
             driverIndex = (driverIndex + 1) % players.length; timeLeft = duration; refreshUI(); 
         } else { 
-            // [수정] 방장 전용 제어 옵션 확인
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 턴을 넘길 수 있습니다. 👑", true); return; }
             const nextIdx = (driverIndex + 1) % players.length; const nextTurnCount = isValidTurn ? turnCount + 1 : turnCount;
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
@@ -2181,6 +2183,7 @@
                 "timer.pausedTimeLeft": duration, 
                 "timer.driverIndex": nextIdx, 
                 "timer.turnCount": nextTurnCount,
+                "timer.totalStudySeconds": totalStudySeconds, // 학습 시간 기록
                 lastUpdated: serverTimestamp()
             }); 
         }
@@ -2191,7 +2194,6 @@
         if (roomCode === null) {
             timeLeft = duration; refreshUI(); showToast("타이머가 초기화되었습니다. ⏱️");
         } else {
-            // [수정] 방장 전용 제어 옵션 확인
             if (roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { showToast("방장만 타이머를 초기화할 수 있습니다. 👑", true); return; }
             await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                 "timer.pausedTimeLeft": duration,
@@ -2207,24 +2209,49 @@
         else if (e.code === 'Enter') { e.preventDefault(); document.getElementById('switch-btn').click(); }
     });
 
-    // [수정] 세션 종료 로직 통합 (온라인/오프라인 구분 필드 추가)
+    // [수정] 초 단위를 분:초로 변환
+    const formatSeconds = (totalSeconds) => {
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        return `${m}분 ${s}초`;
+    };
+
+    // [수정] 세션 종료 로직 통합 (공식 진행 시간 참조)
     const finishSession = async () => {
         if (document.getElementById('report-modal-overlay').classList.contains('active')) return;
         
         isRunning = false;
         if(timerInterval) clearInterval(timerInterval);
 
-        const totalMin = Math.round((Date.now() - sessionStartTime) / 60000);
+        const endedAtMillis = Date.now() + clientServerDiff;
+        const endedAtDate = new Date(endedAtMillis);
+
+        let totalMin = 0;
+        let startedAtMillis = sessionStartTime;
+        
+        if (roomCode !== null && roomData) {
+            totalMin = roomData.officialTotalMin !== undefined ? roomData.officialTotalMin : Math.round((endedAtMillis - (roomData.sessionStartedAt ? roomData.sessionStartedAt.toMillis() : sessionStartTime)) / 60000);
+            if (roomData.sessionStartedAt) startedAtMillis = roomData.sessionStartedAt.toMillis();
+        } else {
+            totalMin = Math.round((Date.now() - sessionStartTime) / 60000);
+        }
+
+        const startedAtDate = new Date(startedAtMillis);
+
+        // 리포트 모달 표시 정보 업데이트
         document.getElementById('rep-players').textContent = players.map(p => p.name || p).join(', ');
         document.getElementById('rep-time').textContent = `${totalMin}분`; 
         document.getElementById('rep-turns').textContent = `${turnCount}회`; 
-        document.getElementById('rep-date').textContent = new Date().toLocaleDateString();
+        document.getElementById('rep-date').textContent = startedAtDate.toLocaleDateString();
+        
+        // [추가] 시작/종료 시간 업데이트
+        document.getElementById('rep-start-time').textContent = startedAtDate.toLocaleTimeString();
+        document.getElementById('rep-end-time').textContent = endedAtDate.toLocaleTimeString();
         
         const isLoggedUser = (currentUser && !currentUser.isAnonymous);
         document.getElementById('save-msg').style.display = isLoggedUser ? 'block' : 'none';
         document.getElementById('login-invite-msg').style.display = isLoggedUser ? 'none' : 'block';
         
-        // [수정] 히스토리 타이틀 로직 (오프라인 방 제목 반영)
         let historyTitle = "페어 세션";
         if (roomCode !== null) {
             historyTitle = roomData ? (roomData.roomTitle || "온라인 세션") : "온라인 세션";
@@ -2233,7 +2260,6 @@
             historyTitle = offTitle || "오프라인 세션";
         }
         
-        // [수정] 온라인/오프라인 여부(isOnline)를 포함하여 히스토리에 저장
         if(isLoggedUser) {
             try {
                 await addDoc(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'), { 
@@ -2241,17 +2267,18 @@
                     players: players.map(p => p.name || p), 
                     totalMin, 
                     turnCount, 
-                    isOnline: roomCode !== null, // [추가] 모드 식별 필드
+                    isOnline: roomCode !== null,
+                    sessionStartedAt: Timestamp.fromMillis(startedAtMillis), // [추가]
+                    sessionEndedAt: Timestamp.fromMillis(endedAtMillis), // [추가]
+                    totalStudySeconds: totalStudySeconds, // [추가] 실제 학습 시간
                     createdAt: Timestamp.now() 
                 });
             } catch(e) { console.error("History save error:", e); }
         }
 
-        // 모든 확인/설정 모달 닫고 리포트 모달 표시
         document.querySelectorAll('.modal-overlay:not(#report-modal-overlay)').forEach(m => m.classList.remove('active'));
         document.getElementById('report-modal-overlay').classList.add('active');
 
-        // [추가] 방장인 경우 세션 데이터 완전 삭제 (히스토리 저장 후 수행)
         if (roomCode !== null && roomData && roomData.hostId === currentUser.uid) {
             try {
                 const ref = doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode);
@@ -2260,7 +2287,6 @@
         }
     };
 
-    // [수정] 세션 종료 버튼 클릭 시 확인 모달 표시
     document.getElementById('btn-end-timer').onclick = () => {
         if (isRunning) { showToast("일시정지 상태에서만 세션을 종료할 수 있습니다. ⏸️", true); return; }
         if(roomCode !== null && roomData.isHostOnlyControl && roomData.hostId !== currentUser.uid) { 
@@ -2270,24 +2296,50 @@
         document.getElementById('modal-overlay').classList.add('active');
     };
 
-    // [수정] 확인 모달에서 '확인' 클릭 시 최종 종료 처리
     document.getElementById('modal-confirm').onclick = async () => {
         if (roomCode === null) {
             finishSession();
         } else {
-            // 온라인 모드: Firestore 상태를 'ended'로 변경하여 모든 참여자에게 전파 (감지 후 각자 finishSession 실행)
             try {
+                const adjustedNow = Date.now() + clientServerDiff;
+                const startTime = (roomData.sessionStartedAt) ? roomData.sessionStartedAt.toMillis() : sessionStartTime;
+                const officialTotalMin = Math.round((adjustedNow - startTime) / 60000);
+
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     state: 'ended',
+                    officialTotalMin: officialTotalMin, 
                     lastUpdated: serverTimestamp() 
                 });
             } catch(e) { console.error(e); }
         }
     };
 
-    // [수정] 확인 모달에서 '취소' 클릭 시 모달 닫기
     document.getElementById('modal-cancel').onclick = () => {
         document.getElementById('modal-overlay').classList.remove('active');
+    };
+
+    // [추가] 히스토리 상세 보기 기능
+    const showHistoryDetail = (item) => {
+        const modal = document.getElementById('history-detail-modal-overlay');
+        document.getElementById('hist-detail-title').textContent = item.roomTitle || '페어 세션';
+        document.getElementById('hist-detail-date').textContent = item.sessionStartedAt ? item.sessionStartedAt.toDate().toLocaleDateString() : '-';
+        document.getElementById('hist-detail-players').textContent = item.players.join(' & ');
+        
+        const start = item.sessionStartedAt ? item.sessionStartedAt.toDate() : null;
+        const end = item.sessionEndedAt ? item.sessionEndedAt.toDate() : null;
+        
+        document.getElementById('hist-detail-start').textContent = start ? start.toLocaleTimeString() : '-';
+        document.getElementById('hist-detail-end').textContent = end ? end.toLocaleTimeString() : '-';
+        document.getElementById('hist-detail-duration').textContent = `${item.totalMin}분`;
+        document.getElementById('hist-detail-study').textContent = formatSeconds(item.totalStudySeconds || 0);
+        document.getElementById('hist-detail-turns').textContent = `${item.turnCount}회`;
+        document.getElementById('hist-detail-mode').textContent = item.isOnline ? '온라인' : '오프라인';
+        
+        modal.classList.add('active');
+    };
+
+    document.getElementById('hist-detail-close').onclick = () => {
+        document.getElementById('history-detail-modal-overlay').classList.remove('active');
     };
 
     document.getElementById('btn-history').onclick = async () => {
@@ -2295,27 +2347,36 @@
         const snap = await getDocs(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'));
         const list = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt.seconds - a.createdAt.seconds);
         
-        // [수정] 히스토리 리스트에 온라인/오프라인 배지 표시 로직 추가
-        document.getElementById('history-list').innerHTML = list.map(item => {
-            const modeTag = item.isOnline ? 
-                '<span style="font-size: 0.65rem; background: #111827; color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">온라인</span>' : 
-                '<span style="font-size: 0.65rem; background: #e5e7eb; color: #4b5563; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">오프라인</span>';
-            
-            return `<div class="history-item">
-                <div>
-                    <div style="display: flex; align-items: center; margin-bottom: 2px;">
-                        <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary-hover);">${item.roomTitle || '페어 세션'}</span>
-                        ${modeTag}
+        const historyListEl = document.getElementById('history-list');
+        historyListEl.innerHTML = '';
+        
+        if (list.length === 0) {
+            historyListEl.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
+        } else {
+            list.forEach(item => {
+                const modeTag = item.isOnline ? 
+                    '<span style="font-size: 0.65rem; background: #111827; color: var(--primary-color); padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">온라인</span>' : 
+                    '<span style="font-size: 0.65rem; background: #e5e7eb; color: #4b5563; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle;">오프라인</span>';
+                
+                const card = document.createElement('div');
+                card.className = 'history-item';
+                card.innerHTML = `
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+                            <span style="font-weight: 800; font-size: 1.1rem; color: var(--primary-hover);">${item.roomTitle || '페어 세션'}</span>
+                            ${modeTag}
+                        </div>
+                        <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${item.players.join(' & ')}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div>
                     </div>
-                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${item.players.join(' & ')}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 900; color: var(--text-main);">${item.totalMin}분</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div>
-                </div>
-            </div>`;
-        }).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
+                    <div style="text-align: right;">
+                        <div style="font-weight: 900; color: var(--text-main);">${item.totalMin}분</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div>
+                    </div>`;
+                card.onclick = () => showHistoryDetail(item);
+                historyListEl.appendChild(card);
+            });
+        }
         showScreen('history-screen');
     };
 
@@ -2356,7 +2417,6 @@
     setupDurationInputs('duration-min', 'duration-sec'); setupDurationInputs('online-duration-min', 'online-duration-sec');
     setupDurationInputs('settings-duration-min', 'settings-duration-sec');
 
-    /* 탭 전환 로직 */
     document.querySelectorAll('.tab-link').forEach(link => {
         link.onclick = (e) => {
             document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
@@ -2373,7 +2433,6 @@
             return;
         }
         
-        // 초기 탭 설정
         document.querySelector('.tab-link[data-tab="tab-session"]').click();
 
         const m = Math.floor(duration / 60); const s = duration % 60;
@@ -2383,7 +2442,6 @@
         document.getElementById('settings-volume-slider').value = soundVolume * 100;
         document.getElementById('settings-volume-label').textContent = Math.round(soundVolume * 100);
         
-        // 온라인 모드 권한 제어 UI
         const hostControlRow = document.getElementById('host-only-control-row');
         const sessionTabPane = document.getElementById('tab-session');
         const sessionHint = document.getElementById('session-settings-hint');
@@ -2392,7 +2450,6 @@
             hostControlRow.style.display = 'flex';
             document.getElementById('settings-host-only-control').checked = roomData.isHostOnlyControl;
             
-            // 방장이 아닌 경우 세션 설정 탭의 입력 요소들 비활성화
             const isHost = roomData.hostId === currentUser.uid;
             if (!isHost) {
                 sessionTabPane.classList.add('disabled');
@@ -2425,7 +2482,6 @@
         let newDur = Math.max(10, m * 60 + s);
         if (newDur > 1800) newDur = 1800;
         
-        // 개인 설정은 항상 반영
         isSoundEnabled = document.getElementById('settings-sound-toggle').checked;
         soundVolume = document.getElementById('settings-volume-slider').value / 100;
 
@@ -2435,7 +2491,6 @@
             if (isResetNeeded && !isRunning) { timeLeft = duration; }
             refreshUI();
         } else {
-            // 온라인 모드에서는 방장일 때만 세션 설정 업데이트
             if (roomData.hostId === currentUser.uid) {
                 await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
                     duration: newDur, 
@@ -2444,7 +2499,6 @@
                     lastUpdated: serverTimestamp()
                 });
             } else {
-                // 방장이 아니더라도 개인 설정 저장을 위해 알림만 띄움
                 if (duration !== newDur || document.getElementById('settings-host-only-control').checked !== roomData.isHostOnlyControl) {
                     showToast("세션 설정은 방장만 가능합니다. 개인 설정만 반영되었습니다. ⚙️");
                 }
