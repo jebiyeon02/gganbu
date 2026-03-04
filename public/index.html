@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>깐부 - 페어 프로그래밍 타이머</title>
     <meta name="description" content="페어 프로그래밍을 위한 타이머">
-    <meta property="og:image" content="https://woowacourse-gganbu.web.app/logo.png>
+    <meta property="og:image" content="https://woowacourse-gganbu.web.app/logo.png">
     <!-- 배달의민족 한나프로체 폰트 추가 -->
-<link rel="stylesheet" href="https://fastly.Projectnoonnu.com/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.css">
+    <link rel="stylesheet" href="https://fastly.Projectnoonnu.com/gh/projectnoonnu/noonfonts_seven@1.0/BMHANNAPro.css">
 
     <style>
         :root {
@@ -1288,6 +1288,8 @@
     <!-- 로비 화면 (온라인 대기실) -->
     <div id="lobby-screen" class="screen">
         <div class="setup-container">
+            <!-- [추가] 로비에서도 방 제목 표시 (손님용) -->
+            <h2 id="lobby-room-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--primary-hover);"></h2>
             <h1 style="margin-bottom: 1rem;">대기실</h1>
             
             <div style="background: white; padding: 1.5rem; border-radius: 1.5rem; margin-bottom: 2rem; border: 2px dashed var(--primary-color); position: relative;">
@@ -1308,6 +1310,12 @@
             </div>
 
             <div id="host-controls" style="display: none; margin-top: 2.5rem; text-align: left;">
+                <!-- [수정] 방 제목 입력란을 로비 방장용으로 이동 -->
+                <div class="input-group">
+                    <label for="room-title-input">방 제목 (필수)</label>
+                    <input type="text" id="room-title-input" placeholder="예: 레벨2 장바구니 미션 페어" maxlength="20">
+                </div>
+
                 <div class="input-group">
                     <label>턴 길이 설정</label>
                     <div class="duration-setting-wrapper" style="padding: 1.5rem 2rem;">
@@ -1354,6 +1362,9 @@
 
     <!-- 타이머 화면 -->
     <div id="timer-screen" class="screen">
+        <!-- [추가] 타이머 화면 상단 방 제목 표시 -->
+        <h2 id="timer-room-title" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; color: var(--text-main); display: none;"></h2>
+
         <!-- 설정 톱니바퀴 버튼 -->
         <div id="btn-timer-settings" class="timer-settings-btn" title="타이머 설정">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -1743,6 +1754,7 @@
     document.getElementById('create-room-btn').onclick = async () => {
         const nick = document.getElementById('my-nickname').value.trim();
         if(!nick) { showToast("닉네임을 입력해주세요. ✍️", true); return; }
+
         roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
         const me = { 
             name: nick, 
@@ -1751,6 +1763,7 @@
         };
         await setDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), {
             roomCode, hostId: currentUser.uid, players: [me], state: 'lobby', duration: 300, autoSwitch: false,
+            roomTitle: "", // [수정] 처음에는 빈값으로 초기화
             timer: { isRunning: false, endTime: 0, pausedTimeLeft: 300, driverIndex: 0, turnCount: 1 }
         });
         startSync(); sessionStartTime = Date.now(); showScreen('lobby-screen');
@@ -1777,7 +1790,14 @@
         unsubRoom = onSnapshot(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), (snap) => {
             if(!snap.exists()) return;
             const data = snap.data();
-            roomData = data; document.getElementById('display-room-code').textContent = roomCode; document.getElementById('player-count').textContent = data.players.length;
+            roomData = data; 
+            document.getElementById('display-room-code').textContent = roomCode; 
+            document.getElementById('player-count').textContent = data.players.length;
+            
+            // [추가] 로비에서 방 제목 표시
+            const lobbyTitleEl = document.getElementById('lobby-room-title');
+            if(data.roomTitle) lobbyTitleEl.textContent = `[${data.roomTitle}]`;
+
             document.getElementById('lobby-players').innerHTML = data.players.map(p => {
                 const name = p.name || p; const photo = p.photo || 'play_hangsung.png';
                 // 프로필 사진을 닉네임 왼쪽에 표시
@@ -1791,7 +1811,19 @@
             const t = data.timer; driverIndex = t.driverIndex; turnCount = t.turnCount; isRunning = t.isRunning;
             document.getElementById('auto-switch-checkbox').checked = data.autoSwitch;
             if(data.state === 'playing') {
-                if(currentMode !== 'timer-screen') { showScreen('timer-screen'); document.getElementById('room-code-badge').style.display = 'inline-block'; document.getElementById('btn-copy-code-timer').style.display = 'inline-flex'; }
+                if(currentMode !== 'timer-screen') { 
+                    showScreen('timer-screen'); 
+                    document.getElementById('room-code-badge').style.display = 'inline-block'; 
+                    document.getElementById('btn-copy-code-timer').style.display = 'inline-flex'; 
+                }
+                
+                // [추가] 타이머 화면 상단 방 제목 표시
+                const timerTitleEl = document.getElementById('timer-room-title');
+                if(data.roomTitle) {
+                    timerTitleEl.textContent = data.roomTitle;
+                    timerTitleEl.style.display = 'block';
+                }
+
                 document.getElementById('room-code-badge').textContent = `방 코드: ${roomCode}`;
                 if(!isRunning) timeLeft = t.pausedTimeLeft;
             }
@@ -1803,10 +1835,20 @@
         if(players.length < 2) { showToast("최소 2명 이상의 크루가 모여야 시작할 수 있습니다. 👥", true); return; }
         const nameList = players.map(p => p.name || p);
         if (new Set(nameList).size !== nameList.length) { showToast("중복된 닉네임이 참여하고 있습니다. ✕", true); return; }
+        
+        // [수정] 세션 시작 시 방 제목 필수 확인
+        const rTitle = document.getElementById('room-title-input').value.trim();
+        if(!rTitle) { showToast("방 제목을 입력해주세요. 🏠", true); return; }
+
         const m = parseInt(document.getElementById('online-duration-min').value) || 0;
         const s = parseInt(document.getElementById('online-duration-sec').value) || 0;
         const dur = Math.max(10, m * 60 + s);
-        await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { state: 'playing', duration: dur, "timer.pausedTimeLeft": dur });
+        await updateDoc(doc(db, 'artifacts', gAppId, 'public', 'data', 'rooms', roomCode), { 
+            state: 'playing', 
+            duration: dur, 
+            roomTitle: rTitle, // [추가] 방 제목 업데이트
+            "timer.pausedTimeLeft": dur 
+        });
     };
 
     document.getElementById('toggle-btn').onclick = async () => {
@@ -1900,7 +1942,16 @@
         document.getElementById('rep-time').textContent = `${totalMin}분`; document.getElementById('rep-turns').textContent = `${turnCount}회`; document.getElementById('rep-date').textContent = new Date().toLocaleDateString();
         document.getElementById('save-msg').style.display = (currentUser && !currentUser.isAnonymous) ? 'block' : 'none';
         document.getElementById('login-invite-msg').style.display = (currentUser && !currentUser.isAnonymous) ? 'none' : 'block';
-        if(currentUser && !currentUser.isAnonymous) await addDoc(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'), { players: players.map(p => p.name || p), totalMin, turnCount, createdAt: Timestamp.now() });
+        
+        // [추가] 히스토리 저장 시 방 제목 포함
+        const historyTitle = roomCode ? roomData.roomTitle : "오프라인 세션";
+        if(currentUser && !currentUser.isAnonymous) await addDoc(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'), { 
+            roomTitle: historyTitle, // [추가]
+            players: players.map(p => p.name || p), 
+            totalMin, 
+            turnCount, 
+            createdAt: Timestamp.now() 
+        });
         document.getElementById('report-modal-overlay').classList.add('active');
     };
 
@@ -1908,7 +1959,20 @@
         if(!currentUser || currentUser.isAnonymous) return;
         const snap = await getDocs(collection(db, 'artifacts', gAppId, 'users', currentUser.uid, 'history'));
         const list = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.createdAt.seconds - a.createdAt.seconds);
-        document.getElementById('history-list').innerHTML = list.map(item => `<div class="history-item"><div><div style="font-weight: 800; font-size: 1rem;">${item.players.join(' & ')}</div><div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div></div><div style="text-align: right;"><div style="font-weight: 900; color: var(--primary-color);">${item.totalMin}분</div><div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div></div></div>`).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
+        
+        // [추가] 히스토리 리스트 렌더링 시 방 제목 표시
+        document.getElementById('history-list').innerHTML = list.map(item => `
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary-hover); margin-bottom: 2px;">${item.roomTitle || '페어 세션'}</div>
+                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-main);">${item.players.join(' & ')}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">${item.createdAt.toDate().toLocaleDateString()}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 900; color: var(--text-main);">${item.totalMin}분</div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${item.turnCount}회 교대</div>
+                </div>
+            </div>`).join('') || '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">아직 기록이 없습니다.</p>';
         showScreen('history-screen');
     };
 
